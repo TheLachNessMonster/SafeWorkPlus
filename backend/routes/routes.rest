@@ -1,0 +1,55 @@
+GET http://localhost:3000/workplaces/
+###
+GET http://localhost:3000/incidents/
+
+
+###
+DELETE  http://localhost:3000/incidents/68428d364125f9ef2368a042/
+###
+POST http://localhost:3000/incidents/
+Content-Type: application/json
+
+{
+  "title": "Fall", "description": "slip and trip", "photoPath":"404", "reportedBy":"683ff2699ee81d014e06f116", "workplaceId":"683ff1da9ee81d014e06f10d", "status":"", "createdAt":"xdgsd", "riskLevel":"Medium"
+}
+###
+GET http://localhost:3000/users/
+
+###
+POST http://localhost:3000/users/
+Content-Type: application/json
+
+{
+  "name": "Ashley", "email": "ash@email.com", "role":"Frontend", "workplaceId":"683ff1da9ee81d014e06f10d"
+}
+
+###
+
+GET http://localhost:3000/people/6828231e58ad90e3fc2ebdd7/
+
+###
+
+POST http://localhost:3000/workplaces/
+Content-Type: application/json
+
+{
+  "name": "CompTech", "location": "Petersham"
+}
+###
+POST http://localhost:3000/people/
+Content-Type: application/json
+
+{
+  "name": "Dee", "age": "3X", "occupation": "Driver"
+}
+
+###
+PATCH  http://localhost:3000/people/682e9dbb065d7d041e5b7b7a/
+Content-Type: application/json
+
+{
+  "age": "22", "occupation": "Quilter"
+}
+
+###
+DELETE  http://localhost:3000/people/68300efdc9e9b5bc90afb549/
