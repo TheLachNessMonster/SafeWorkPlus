@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import type { Incident } from '../types';
-import { incidentService } from '../services/api.ts';
+//import { incidentService } from '../services/api.ts';
+import { nuIncidentService } from '../services/api';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function Dashboard() {
         setError(null);
         
         // can the real api call please stand up...
-        const data = await incidentService.getIncidents();
+        const data = await nuIncidentService.getAll();
         
         setIncidents(data);
         
