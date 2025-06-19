@@ -44,8 +44,7 @@ const IncidentSchema = new Schema<IIncident>({
     //make strict required (?) 
     createdAt: {
         type: Date,
-        set: createdAtDefault
-        //set: createdAtDefault
+        default: () => new Date()
     },
 
     riskLevel: {

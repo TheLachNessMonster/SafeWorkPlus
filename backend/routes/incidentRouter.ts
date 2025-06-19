@@ -1,7 +1,12 @@
-import { Request, Response, Router } from 'express';
+import {  Router } from 'express';
 const incidentRouter: Router = Router();
-import { IIncident, Incident } from '../models/incident.js';
+import { Incident } from '../models/incident.js';
 import mongoose from 'mongoose';
+import type { Request, Response } from 'express';   // type-only import
+import type { IIncident } from '../models/incident.js'; // type-only import
+import multer from 'multer';
+const upload = multer({ dest: 'uploads/' });
+
 
 
 //GET incidents filtered by workplace
@@ -19,7 +24,7 @@ incidentRouter.get('/workplace/:workplaceId', async (req: Request, res: Response
 //TODO: PUT update incident status
 
 //GET (ALL)
-incidentRouter.get('/', async (req: Request, res: Response) => {
+incidentRouter.get('/', async (_req: Request, res: Response) => {
     try {
         const incidents: mongoose.Document[] = await Incident.find().populate(["reportedBy", "workplaceId"]);
         res.json(incidents);
@@ -41,20 +46,21 @@ incidentRouter.get('/:id', async (req: Request, res: Response) => {
 
 
 // CREATE
-incidentRouter.post('/', async (req: Request, res: Response) => {
+incidentRouter.post('/', upload.single('photo'), async (req: Request, res: Response) => {
 
     //Instantiating a new person object to send to the database
     const incident: mongoose.Document = new Incident({
         title: req.body.title,
             description: req.body.description,
-            photoPath: req.body.photoPath,
+            photoPath: req.file?.path,
             reportedBy: req.body.reportedBy,
             workplaceId: req.body.workplaceId,
             status: req.body.status,
             //NOTE: THIS IS THE MONGOOSE DATE TYPE
-            createdAt: req.body.createdAt,
             riskLevel: req.body.riskLevel
+            //createdAt: new Date() // This will be set by the schema default
     })
+
 
     try {
         const newIncident: mongoose.Document = await incident.save()

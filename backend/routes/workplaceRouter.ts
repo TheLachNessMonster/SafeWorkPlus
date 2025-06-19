@@ -1,11 +1,12 @@
-import { Request, Response, Router } from 'express';
+import { Router } from 'express';
 const workplaceRouter: Router = Router();
-import { IWorkplace, Workplace } from '../models/workplace.js';
+import { Workplace } from '../models/workplace.js';
 import mongoose from 'mongoose';
-
+import type { Request, Response } from 'express';
+import type { IWorkplace } from '../models/workplace.js';
 //GET (ALL)
 
-workplaceRouter.get('/', async (req: Request, res: Response) => {
+workplaceRouter.get('/', async (_req: Request, res: Response) => {
     try {
         const workplaces: mongoose.Document[] = await Workplace.find();
         res.json(workplaces);

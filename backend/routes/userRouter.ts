@@ -1,11 +1,13 @@
-import { Request, Response, Router } from 'express';
+import { Router } from 'express';
 const userRouter: Router = Router();
-import { IUser, User } from '../models/user.js';
-import mongoose from 'mongoose';
+import { User } from '../models/user.js';
+import mongoose from 'mongoose';//
+import type { IUser } from '../models/user.js';
+import type { Request, Response } from 'express';
 
 //GET (ALL)
 
-userRouter.get('/', async (req: Request, res: Response) => {
+userRouter.get('/', async (_req: Request, res: Response) => {
     try {
         const users: mongoose.Document[] = await User.find().populate('workplaceId');
         res.json(users);
