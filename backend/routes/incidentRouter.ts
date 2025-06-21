@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 const incidentRouter: Router = Router();
-import { IIncident, Incident } from '../models/incident.js';
+import { IIncident, Incident } from '../models/incident';
 import mongoose from 'mongoose';
 
 

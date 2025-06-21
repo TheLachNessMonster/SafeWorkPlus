@@ -14,7 +14,7 @@ export class GenericService<T> {
         this.client = client;
         this.endpoint = endpoint;
     }
-
+    
 
     //methods
     async getAll():Promise<T[]> {

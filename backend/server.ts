@@ -25,6 +25,7 @@ db.once('open', () => console.log('Connected to DB'));
 import workplaceRouter from './routes/workplaceRouter';
 import userRouter from './routes/userRouter';
 import incidentRouter from './routes/incidentRouter';
+import loginRouter from './routes/loginRouter';
 
 
 app.use(express.json())
@@ -32,5 +33,6 @@ app.use(express.json())
 app.use('/workplaces', workplaceRouter)
 app.use('/users', userRouter)
 app.use('/incidents', incidentRouter)
+app.use('/login', loginRouter)
 
 app.listen(3000, ()=>console.log("Server running"));

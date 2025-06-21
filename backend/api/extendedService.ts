@@ -3,10 +3,11 @@ import { Incident, User, Workplace } from "../../src/types";
 
 
 class IncidentService extends GenericService<Incident> {
+
     InitMap(dto: object): Incident {
 
         //Create new incident with sensible defaults
-        let i: Incident = {
+        let newIncident: Incident = {
             _id: '',
             title: '',
             description: '',
@@ -17,7 +18,12 @@ class IncidentService extends GenericService<Incident> {
             createdAt: new Date().toISOString()
         };
 
-        return i;
+        for (let key of Object.keys(dto)) {
+            if (key in Object.keys(newIncident)) {
+                newIncident[key as keyof Incident];
+            }
+        }
+        return newIncident;
     }
 }
 

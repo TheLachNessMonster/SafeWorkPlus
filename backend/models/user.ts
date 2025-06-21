@@ -7,6 +7,7 @@ export interface IUser {
     email: string,
     role: string,
     workplaceId: mongoose.Schema.Types.ObjectId
+    password: string;
 };
 
 
@@ -18,7 +19,8 @@ const userSchema = new Schema<IUser>({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Workplace',
         required: true
-    }
+    },
+    password:{ type: String, required: true }
 })
 
 export const User = model<IUser>('User', userSchema)
