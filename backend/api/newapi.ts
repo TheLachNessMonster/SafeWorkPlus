@@ -2,8 +2,8 @@ import { response } from "express";
 
 class NewApiClient {
     private baseURL: string;
-    //HOLDS THE JWT
-    private token:string = 'NULL'
+    //HOLDS THE JWT - MAKE PRIVATE
+    public token:string = 'NULL'
 
     //loads the api url target
     constructor(baseURL: string) {
@@ -18,7 +18,8 @@ class NewApiClient {
         const config: RequestInit = {
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.token}`,
+                //passes JWT
+                'Authorization': this.token,
                 ...options.headers,
             },
             ...options,
@@ -30,19 +31,18 @@ class NewApiClient {
                 throw new Error(`API Error: ${response.status} ${response.statusText}`);
             }
 
-            //Rip the token and store here, then return the message part of the response that contains the actual user info.
-
             return await response.json();
         } catch (error) {
             console.error('API request failed:', error);
             throw error;
         }
     }
+    
     //LOGIN METHOD
-    async login() {
-        var response = await this.request('/login/684e5ced8fe1c860d4b53d1a', { method: 'POST' })
-        console.log(response);
-
+    async login(id:string, password:string) {
+        var response :string = await this.post<string>(`/login/${id}`, JSON.stringify({password:password}))
+        this.token = response;
+        console.log(this.token);
     }
 
     //HTTP VERBS 
