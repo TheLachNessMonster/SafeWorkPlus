@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import type { Incident } from '../types';
+import { nuIncidentService } from '../services/api';
 
 export default function AllIncidents() {
   const navigate = useNavigate();
@@ -15,113 +16,8 @@ export default function AllIncidents() {
         setIsLoading(true);
         setError(null);
 
-        const mockIncidents: Incident[] = [
-          {
-            _id: '1',
-            title: 'Title',
-            description: 'Desc.',
-            reportedBy: 'user123',
-            workplaceId: 'workplace123',
-            status: 'Open',
-            riskLevel: 'High',
-            createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          },
-          {
-            _id: '2',
-            title: 'Title',
-            description: 'Desc.',
-            reportedBy: 'user456',
-            workplaceId: 'workplace123',
-            status: 'In Progress',
-            riskLevel: 'Medium',
-            createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-          },
-          {
-            _id: '3',
-            title: 'Title',
-            description: 'Desc.',
-            reportedBy: 'user789',
-            workplaceId: 'workplace123',
-            status: 'Resolved',
-            riskLevel: 'Low',
-            createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-          },
-          {
-            _id: '4',
-            title: 'Title',
-            description: 'Desc.',
-            reportedBy: 'user234',
-            workplaceId: 'workplace123',
-            status: 'Open',
-            riskLevel: 'High',
-            createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          },
-          {
-            _id: '5',
-            title: 'Title',
-            description: 'Desc.',
-            reportedBy: 'user567',
-            workplaceId: 'workplace123',
-            status: 'Resolved',
-            riskLevel: 'Medium',
-            createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          },
-          {
-            _id: '6',
-            title: 'Title',
-            description: 'Desc.',
-            reportedBy: 'user890',
-            workplaceId: 'workplace123',
-            status: 'In Progress',
-            riskLevel: 'High',
-            createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-          },
-          {
-            _id: '7',
-            title: 'Title',
-            description: 'Desc.',
-            reportedBy: 'user345',
-            workplaceId: 'workplace123',
-            status: 'Open',
-            riskLevel: 'Low',
-            createdAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
-          },
-          {
-            _id: '8',
-            title: 'Title',
-            description: 'Desc.',
-            reportedBy: 'user678',
-            workplaceId: 'workplace123',
-            status: 'Resolved',
-            riskLevel: 'Medium',
-            createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-          },
-          {
-            _id: '9',
-            title: 'Title',
-            description: 'Desc.',
-            reportedBy: 'user123',
-            workplaceId: 'workplace123',
-            status: 'Open',
-            riskLevel: 'Medium',
-            createdAt: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000).toISOString(),
-          },
-          {
-            _id: '10',
-            title: 'Title',
-            description: 'Desc.',
-            reportedBy: 'user456',
-            workplaceId: 'workplace123',
-            status: 'In Progress',
-            riskLevel: 'High',
-            createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-          }
-        ];
-
-        // mock API delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        setIncidents(mockIncidents);
+        const incidents: Incident[] = await nuIncidentService.getAll();
+        setIncidents(incidents);
       } catch (err) {
         console.error('error fetching incidents:', err);
         setError('failed to load incidents. try again.');

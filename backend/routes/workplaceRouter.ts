@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 const workplaceRouter: Router = Router();
-import { IWorkplace, Workplace } from '../models/workplace.js';
+import { IWorkplace, Workplace } from '../models/workplace';
 import mongoose from 'mongoose';
 
 //GET (ALL)
