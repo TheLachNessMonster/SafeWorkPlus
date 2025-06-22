@@ -57,13 +57,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setState(prev => ({ ...prev, isLoading: true }));
 
-      // use email login endpoint
-      const loginResponse = await fetch('http://localhost:3000/login/email', {
+      // find user by email to get ID
+      const usersResponse = await fetch('http://localhost:3000/users');
+      if (!usersResponse.ok) {
+        throw new Error('Failed to fetch users');
+      }
+      
+      const users: User[] = await usersResponse.json();
+      const user = users.find(u => u.email === email);
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      // attempt login w user ID using existing endpoint
+      const loginResponse = await fetch(`http://localhost:3000/login/${user._id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ password }),
       });
 
       if (!loginResponse.ok) {
@@ -71,8 +84,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error(errorData.message || 'Invalid credentials');
       }
 
-      // get user and token from response
-      const { user, token } = await loginResponse.json();
+      // current implementation returns just the token
+      const token = await loginResponse.json();
 
       // store auth data
       localStorage.setItem('auth_token', token);
@@ -106,10 +119,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (!state.user || !state.token) return;
 
     try {
-      // fetch updated user data
+      // fetch updated user data 
       const response = await fetch(`http://localhost:3000/login/${state.user._id}`, {
         headers: {
-          'Authorization': `Bearer ${state.token}`,
+          'Authorization': state.token, // auth expects direct token
         },
       });
 
