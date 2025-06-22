@@ -1,0 +1,34 @@
+GET http://localhost:3000/workplaces/
+###
+GET http://localhost:3000/incidents/
+###
+GET http://localhost:3000/users/
+###
+GET http://localhost:3000/login/684e5ced8fe1c860d4b53d1a
+
+###
+GET http://localhost:3000/login
+
+###
+POST http://localhost:3000/users/
+Content-Type: application/json
+
+{
+  "name": "Ashley", "email": "ash@email.com", "role":"Frontend", "workplaceId":"683ff1da9ee81d014e06f10d"
+}
+
+###
+POST http://localhost:3000/login/685775bacf8354291d16704a
+Content-Type: application/json
+
+{
+  "password": "abc123"
+}
+###
+
+POST http://localhost:3000/users/
+Content-Type: application/json
+
+{
+  "name": "NewTest", "email": "test@email.com", "role":"YabbaDabbaDoo", "workplaceId":"683ff1da9ee81d014e06f10d", "password":"abc123"
+}

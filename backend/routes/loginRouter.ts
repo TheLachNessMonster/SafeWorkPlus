@@ -11,18 +11,20 @@ dotenv.config();
 import * as bcrypt from 'bcrypt';
 
 //password generation
-var password:string = "abc123"
-bcrypt.hash(password, 10, (err, hash)=>{
-    if(err) throw err;
-    //database storage in callback
-})
+async function hasher(input: string) {
+    var output = await bcrypt.hash(input, 10, (err, hash) => {
+        if (err) throw err;
+        return hash;
+    })
+    return output;
+}
 
 //validation on login
-bcrypt.compare('entered_password', 'stored_hash', (err,result)=>{
+bcrypt.compare('entered_password', 'stored_hash', (err, result) => {
     if (err) throw err;
-    if(result){
+    if (result) {
         //authsuccess
-    }else{
+    } else {
         //authfail
     }
 })
@@ -32,25 +34,27 @@ bcrypt.compare('entered_password', 'stored_hash', (err,result)=>{
 //JWT config and token generation
 
 import * as jwt from 'jsonwebtoken';
-const secretKey = process.env.JWT_SECRET_KEY||"OOPSY-DAISY";
-const examplePayload = {userId:"ABC"}
-if(secretKey){
-    const token = jwt.sign(examplePayload, secretKey, {expiresIn: '1h'});
-}
+const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
+
 
 
 //Auth middleware
 
-function authToken(req:Request, res:Response, next:NextFunction){
+function authToken(req: Request, res: Response, next: NextFunction) {
     //cheeky type assertion, review
-    const authHeader = req.headers['authorisation'] as string;
-    console.log(authHeader);
-    const token = authHeader && authHeader.split(' ')[1]
+    try {
+        const authHeader = req.headers['authorisation'] as string;
+        console.log(authHeader);
+        const token = authHeader && authHeader.split(' ')[1]
 
-    jwt.verify(token, secretKey, (err, user) =>{
-        console.log('vallidation successful, route will proceed')
-        next()
-    })
+        jwt.verify(token, secretKey, (err, user) => {
+            next()
+        })
+
+    } catch (err: any) {
+        res.json({ message: err.message })
+    }
+
 }
 
 
@@ -60,20 +64,40 @@ function authToken(req:Request, res:Response, next:NextFunction){
 
 //Handles a POST containing the login data:
 loginRouter.post('/:id', async (req: Request, res: Response) => {
-        try {
-            //gets user from DB
-            const user = await User.findById(req.params.id).populate('workplaceId');
-            if(user){
-                //compare with stored value
-                const validated = await bcrypt.compare(req.body.password, user.password);
-                //check if failed - respond with invalid credentials if so
-                if(!validated){res.json({message:"Invalid credentials"})}
+    try {
+        //gets user from DB
+        console.log('hit, looking for user')
+        const user = await User.findById(req.params.id).populate('workplaceId');
+        if (!user) {
+            res.json({ message: 'Failed to find user' , output:user})
+        } else {
+            console.log('found user')
+            //compare with stored value
+            const validated = await bcrypt.compare(req.body.password, user.password);
+            console.log('validation check completed')
+            //check if failed - respond with invalid credentials if so
+            if (!validated) {
+                res.json({ message: "Invalid credentials" })
+            } else {
+                if (secretKey) {
+                    //if successful, issue token
+                    const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+                    res.json({ message: token })
+                }
             }
-            
-            //res.json(user);
-        } catch (err: any) {
-            res.json({ message: err.message })
+
+
+
         }
+
+        //WE GET TO HERE, WE DON'T ENTER THE IF
+
+
+
+        //res.json(user);
+    } catch (err: any) {
+        res.json({ message: err.message })
+    }
 
 })
 
@@ -88,6 +112,19 @@ loginRouter.get('/:id', authToken, async (req: Request, res: Response) => {
     }
 })
 
+
+// loginRouter.get('/', async (req: Request, res: Response) => {
+//     try {
+//         console.log('hit')
+//         const users: mongoose.Document[] = await User.find().select('-password').populate('workplaceId')
+//         if (secretKey) {
+//             const token = jwt.sign(users, secretKey, { expiresIn: '1h' });
+//             res.json({token:token})
+//         }
+//     } catch (err: any) {
+//         res.json({ message: err.message })
+//     }
+// })
 
 
 

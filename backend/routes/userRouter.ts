@@ -2,6 +2,11 @@ import { Request, Response, Router } from 'express';
 const userRouter: Router = Router();
 import { IUser, User } from '../models/user';
 import mongoose from 'mongoose';
+import * as bcrypt from 'bcrypt';
+async function hasher(input: string) {
+    var output = await bcrypt.hash(input, 10)
+    return output;
+}
 
 //GET (ALL)
 
@@ -29,13 +34,15 @@ userRouter.get('/:id', async (req: Request, res: Response) => {
 // CREATE
 userRouter.post('/', async (req: Request, res: Response) => {
 
+    let hashedInput = await hasher(req.body.password).then(hash=>{return hash})
+
     //Instantiating a new person object to send to the database
     const user: mongoose.Document = new User({
         name: req.body.name,
         email: req.body.email,
         role: req.body.role,
         workplaceId: req.body.workplaceId,
-        password: req.body.password
+        password: hashedInput
     })
 
     try {
