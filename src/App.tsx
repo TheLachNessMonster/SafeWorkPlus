@@ -6,6 +6,8 @@ import Dashboard from './pages/Dashboard';
 import CreateReport from './pages/CreateReport';
 import Profile from './pages/Profile';
 import Incidents from './pages/Incidents';
+// import IncidentDetail from './pages/IncidentDetail';
+import Workplaces from './pages/Workplaces';
 
 function App() {
   return (
@@ -28,6 +30,22 @@ function App() {
               <ProtectedRoute>
                 <Incidents />
               </ProtectedRoute>
+            } 
+          />
+          {/* <Route 
+              path="/incidents/:id" 
+               element={
+               <ProtectedRoute>
+                 <IncidentDetail />
+               </ProtectedRoute>
+            } 
+          /> */}
+          <Route 
+              path="/workplaces" 
+               element={
+               <ProtectedRoute>
+                 <Workplaces />
+               </ProtectedRoute>
             } 
           />
           <Route 
