@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
-//import { incidentService } from '../services/api';
 import { nuIncidentService } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 import type { Incident } from '../types';
 
 interface ReportForm {
@@ -13,6 +13,7 @@ interface ReportForm {
 
 export default function CreateReport() {
   const navigate = useNavigate();
+  const { user } = useAuth(); // get current user
   const [form, setForm] = useState<ReportForm>({
     title: '',
     description: '',
@@ -26,28 +27,33 @@ export default function CreateReport() {
     setIsSubmitting(true);
 
     try {
-      // can the real API call please stand up....
+      // confirm logged-in user
+      if (!user?._id) {
+        throw new Error('User not authenticated');
+      }
 
-      //Here I have added the use of the generic 
+      // get the user's workplace id
+      const userWorkplaceId = typeof user.workplaceId === 'string' 
+        ? user.workplaceId 
+        : (user.workplaceId as any)?._id;
 
+      if (!userWorkplaceId) {
+        throw new Error('User workplace not properly configured. Please contact your administrator.');
+      }
 
-      //Suggestion - handle the binding HERE - (manual model binding at view?)
-      let input:Incident = {
-        //Mongo DB handles the null _id field and will generate its own automatically
-        //For the future, good MVC principles would suggest we use a DTO to 
-          _id:'',
-          title: form.title,
-          description: form.description,
-          riskLevel: form.riskLevel,
-          reportedBy: '684e5ced8fe1c860d4b53d1a', // real Ashley User ID
-          workplaceId: '684e5bfc8fe1c860d4b53d0f', // real Construction Site A ID
-          status: 'Open',
-          createdAt: new Date().toISOString()
-        }
-      
+      // create incident with proper user data
+      let input: Incident = {
+        _id: '', // mongo db handles the null _id field and will generate its own automatically
+        title: form.title,
+        description: form.description,
+        riskLevel: form.riskLevel,
+        reportedBy: user._id,
+        workplaceId: userWorkplaceId,
+        status: 'Open',
+        createdAt: new Date().toISOString()
+      };
 
-      const newIncident = await nuIncidentService.create(input)
-
+      const newIncident = await nuIncidentService.create(input);
 
       console.log('Incident created successfully:', newIncident);
       
@@ -55,12 +61,13 @@ export default function CreateReport() {
       navigate('/dashboard');
     } catch (error) {
       console.error('Error submitting report:', error);
+      alert('Failed to submit report. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleInputChange = (field: keyof ReportForm, value: string) => { //
+  const handleInputChange = (field: keyof ReportForm, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
   };
 
@@ -140,7 +147,7 @@ export default function CreateReport() {
         {/* submit button */}
         <button
           type="submit"
-          disabled={isSubmitting || !form.title || !form.description}
+          disabled={isSubmitting || !form.title || !form.description || !user}
           className="w-full bg-primary-500 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? 'Submitting...' : 'Submit Report'}
