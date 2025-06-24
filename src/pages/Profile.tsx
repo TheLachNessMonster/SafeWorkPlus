@@ -11,6 +11,36 @@ export default function Profile() {
     navigate('/login');
   };
 
+  // helper function to handle workplace display
+  /* 
+  this is needed bc user.workplaceId returns a populated object,
+  not just a string ID from the BE
+  */
+  const getWorkplaceDisplay = () => {
+    if (!user?.workplaceId) {
+      return 'No workplace assigned';
+    }
+    
+    // handle both populated object and string ID
+    if (typeof user.workplaceId === 'string') {
+      return `Workplace ID: ${user.workplaceId}`;
+    }
+    
+    // if it's a populated object
+    if (typeof user.workplaceId === 'object' && user.workplaceId !== null) {
+      const workplace = user.workplaceId as any;
+      if (workplace.name && workplace.location) {
+        return `${workplace.name} - ${workplace.location}`;
+      } else if (workplace.name) {
+        return workplace.name;
+      } else if (workplace._id) {
+        return `Workplace ID: ${workplace._id}`;
+      }
+    }
+    
+    return 'Unknown workplace';
+  };
+
   if (!user) {
     return (
       <Layout title="Profile">
@@ -39,13 +69,21 @@ export default function Profile() {
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-gray-700">Role</label>
-              <p className="mt-1 text-sm text-gray-900 capitalize">{user.role}</p>
+              <p className="mt-1 text-sm text-gray-900">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
+                  user.role === 'foreman' 
+                    ? 'bg-blue-100 text-blue-800' 
+                    : 'bg-gray-100 text-gray-800'
+                }`}>
+                  {user.role}
+                </span>
+              </p>
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700">Workplace</label>
               <p className="mt-1 text-sm text-gray-900">
-                {user.workplaceId ? `Workplace ID: ${user.workplaceId}` : 'No workplace assigned'}
+                {getWorkplaceDisplay()}
               </p>
             </div>
           </div>
