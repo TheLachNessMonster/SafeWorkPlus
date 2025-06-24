@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
+import { RoleGuard } from '../components/RoleGuard';
+import { usePermissions } from '../hooks/usePermissions';
 import type { Incident } from '../types';
-//import { incidentService } from '../services/api.ts';
 import { nuIncidentService } from '../services/api';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const permissions = usePermissions();
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [stats, setStats] = useState({
     open: 0,
@@ -22,23 +24,35 @@ export default function Dashboard() {
         setLoading(true);
         setError(null);
         
-        // can the real api call please stand up...
         const data = await nuIncidentService.getAll();
         
-        setIncidents(data);
+        // filter incidents based on role
+        let filteredIncidents = data;
+        if (permissions.isUser && !permissions.isForeman) {
+          // users only see their own incidents
+          filteredIncidents = data.filter(incident => {
+            const reportedBy = typeof incident.reportedBy === 'string' 
+              ? incident.reportedBy 
+              : (incident.reportedBy as any)?._id;
+            return reportedBy === permissions.currentUser?._id;
+          });
+        }
+        // foremen see all incidents (no filtering needed)
         
-        // calc stats from real data
-        const openCount = data.filter(i => 
+        setIncidents(filteredIncidents);
+        
+        // calculate stats from filtered data
+        const openCount = filteredIncidents.filter(i => 
           i.status === 'Open' || i.status === 'In Progress'
         ).length;
-        const resolvedCount = data.filter(i => 
+        const resolvedCount = filteredIncidents.filter(i => 
           i.status === 'Resolved' || i.status === 'Closed'
         ).length;
         
         setStats({
           open: openCount,
           resolved: resolvedCount,
-          total: data.length
+          total: filteredIncidents.length
         });
         
       } catch (err) {
@@ -50,7 +64,8 @@ export default function Dashboard() {
     };
 
     fetchIncidents();
-  }, []);
+  }, [permissions.currentUser?._id, permissions.isForeman]);
+
 
   const getRiskLevelColor = (riskLevel: string) => {
     switch(riskLevel) {
@@ -112,23 +127,61 @@ export default function Dashboard() {
     );
   }
 
-  return (
+return (
     <Layout title="Dashboard">
-      {/* stats cards */}
+      {/* role indicator */}
+      <div className="mb-4">
+        <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
+          permissions.isForeman 
+            ? 'bg-blue-100 text-blue-800' 
+            : 'bg-gray-100 text-gray-700'
+        }`}>
+          {permissions.isForeman ? 'Foreman View' : 'User View'}
+        </div>
+      </div>
+
+      {/* stats cards with role context */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
           <div className="text-2xl font-bold text-warning-500">{stats.open}</div>
-          <div className="text-xs text-gray-600">active</div>
+          <div className="text-xs text-gray-600">
+            {permissions.isForeman ? 'Active (all)' : 'Active'}
+          </div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
           <div className="text-2xl font-bold text-success-500">{stats.resolved}</div>
-          <div className="text-xs text-gray-600">resolved</div>
+          <div className="text-xs text-gray-600">
+            {permissions.isForeman ? 'Resolved (all)' : 'Resolved'}
+          </div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
           <div className="text-2xl font-bold text-gray-700">{stats.total}</div>
-          <div className="text-xs text-gray-600">total</div>
+          <div className="text-xs text-gray-600">
+            {permissions.isForeman ? 'Total (all)' : 'Total'}
+          </div>
         </div>
       </div>
+
+      {/* foreman-only management section */}
+      <RoleGuard requiredRole="foreman">
+        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6">
+          <h3 className="text-lg font-semibold text-blue-800 mb-2">Management Tools</h3>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => navigate('/incidents')}
+              className="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm"
+            >
+              Manage All Incidents
+            </button>
+            <button
+              onClick={() => navigate('/workplaces')}
+              className="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm"
+            >
+              Manage Workplaces
+            </button>
+          </div>
+        </div>
+      </RoleGuard>
 
       {/* recent incidents */}
       <div className="mb-4">
