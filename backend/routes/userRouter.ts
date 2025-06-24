@@ -2,14 +2,14 @@ import { Request, Response, Router } from 'express';
 const userRouter: Router = Router();
 import { IUser, User } from '../models/user';
 import mongoose from 'mongoose';
-import * as bcrypt from 'bcrypt';
-async function hasher(input: string) {
-    var output = await bcrypt.hash(input, 10)
-    return output;
-}
+import { hasher } from '../api/auth';
 
-//GET (ALL)
 
+
+
+/**
+ * GET all, serialise as list
+ */
 userRouter.get('/', async (req: Request, res: Response) => {
     try {
         const users: mongoose.Document[] = await User.find().select('-password').populate('workplaceId');
@@ -20,7 +20,11 @@ userRouter.get('/', async (req: Request, res: Response) => {
 })
 
 
-// GET (ID)
+
+
+/**
+ *GET by ID
+ */
 userRouter.get('/:id', async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.params.id).select('-password').populate('workplaceId');
@@ -31,7 +35,11 @@ userRouter.get('/:id', async (req: Request, res: Response) => {
 });
 
 
-// CREATE
+
+
+/**
+ * POST a new document of router 'type' to DB
+ */
 userRouter.post('/', async (req: Request, res: Response) => {
 
     let hashedInput = await hasher(req.body.password).then(hash=>{return hash})
@@ -54,9 +62,13 @@ userRouter.post('/', async (req: Request, res: Response) => {
 })
 
 
-// UPDATE
 
-//NOTE: "can't set headers after response is sent to the client" error usually indicates you have competing responses
+
+/**
+ * Updates document using PATCH.  
+ * Type assertion used allows looping instead of direct mapping as service layer ensures PATCH req body takes shape of router type
+ * Future refactoring will make this algorithm generic and modular
+ */
 userRouter.patch('/:id', async (req: Request, res: Response) => {
     try {
         //currently, password can't be reset if changed
@@ -81,7 +93,12 @@ userRouter.patch('/:id', async (req: Request, res: Response) => {
 
 })
 
-// DELETE
+
+
+
+/**
+ * DELETE document from DB by ID/
+ */
 userRouter.delete('/:id', async (req: Request, res: Response) => {
     try {
         await User.findByIdAndDelete(req.params.id);
@@ -92,5 +109,8 @@ userRouter.delete('/:id', async (req: Request, res: Response) => {
 
 
 })
+
+
+
 
 export default userRouter;

@@ -3,8 +3,12 @@ const workplaceRouter: Router = Router();
 import { IWorkplace, Workplace } from '../models/workplace';
 import mongoose from 'mongoose';
 
-//GET (ALL)
 
+
+
+/**
+ * GET all, serialise as list
+ */
 workplaceRouter.get('/', async (req: Request, res: Response) => {
     try {
         const workplaces: mongoose.Document[] = await Workplace.find();
@@ -15,7 +19,11 @@ workplaceRouter.get('/', async (req: Request, res: Response) => {
 })
 
 
-// GET (ID)
+
+
+/**
+ *GET by ID
+ */
 workplaceRouter.get('/:id', async (req: Request, res: Response) => {
     try {
         const workplace = await Workplace.findById(req.params.id)
@@ -26,7 +34,11 @@ workplaceRouter.get('/:id', async (req: Request, res: Response) => {
 });
 
 
-// CREATE
+
+
+/**
+ * POST a new document of router 'type' to DB
+ */
 workplaceRouter.post('/', async (req: Request, res: Response) => {
 
     //Instantiating a new person object to send to the database
@@ -44,9 +56,13 @@ workplaceRouter.post('/', async (req: Request, res: Response) => {
 })
 
 
-// UPDATE
 
-//NOTE: "can't set headers after response is sent to the client" error usually indicates you have competing responses
+
+/**
+ * Updates document using PATCH.  
+ * Type assertion used allows looping instead of direct mapping as service layer ensures PATCH req body takes shape of router type
+ * Future refactoring will make this algorithm generic and modular
+ */
 workplaceRouter.patch('/:id', async (req: Request, res: Response) => {
     try {
         const workplace = await Workplace.findById(req.params.id);
@@ -67,7 +83,12 @@ workplaceRouter.patch('/:id', async (req: Request, res: Response) => {
 
 })
 
-// DELETE
+
+
+
+/**
+ * DELETE document from DB by ID/
+ */
 workplaceRouter.delete('/:id', async (req: Request, res: Response) => {
     try {
         await Workplace.findByIdAndDelete(req.params.id);
@@ -78,5 +99,8 @@ workplaceRouter.delete('/:id', async (req: Request, res: Response) => {
 
 
 })
+
+
+
 
 export default workplaceRouter;
