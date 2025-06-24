@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { nuClient, nuUserService } from '../services/api';
 import type { User } from '../types';
 
 interface AuthState {
@@ -36,6 +37,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (token && userStr) {
       try {
         const user = JSON.parse(userStr);
+        
+        nuClient.token = token;
+        
         setState({
           user,
           token,
@@ -46,6 +50,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // invalid stored data, clear it
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user_data');
+        nuClient.token = 'NULL'; // reset client token
         setState(prev => ({ ...prev, isLoading: false }));
       }
     } else {
@@ -57,37 +62,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setState(prev => ({ ...prev, isLoading: true }));
 
-      // find user by email to get ID
-      const usersResponse = await fetch('http://localhost:3000/users');
-      if (!usersResponse.ok) {
-        throw new Error('Failed to fetch users');
-      }
-      
-      const users: User[] = await usersResponse.json();
+      // find user by email (still needed because BE expects user ID)
+      const users: User[] = await nuUserService.getAll();
       const user = users.find(u => u.email === email);
 
       if (!user) {
         throw new Error('User not found');
       }
 
-      // attempt login w user ID using existing endpoint
-      const loginResponse = await fetch(`http://localhost:3000/login/${user._id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ password }),
-      });
+      // use login method
+      await nuClient.login(user._id, password);
 
-      if (!loginResponse.ok) {
-        const errorData = await loginResponse.json();
-        throw new Error(errorData.message || 'Invalid credentials');
-      }
+      // token is now automatically stored in nuClient.token
+      const token = nuClient.token;
 
-      // current implementation returns just the token
-      const token = await loginResponse.json();
-
-      // store auth data
+      // store auth data in localStorage for persistence
       localStorage.setItem('auth_token', token);
       localStorage.setItem('user_data', JSON.stringify(user));
 
@@ -107,6 +96,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = () => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_data');
+    
+    // reset client token
+    nuClient.token = 'NULL';
+    
     setState({
       user: null,
       token: null,
@@ -119,20 +112,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (!state.user || !state.token) return;
 
     try {
-      // fetch updated user data 
-      const response = await fetch(`http://localhost:3000/login/${state.user._id}`, {
-        headers: {
-          'Authorization': state.token, // auth expects direct token
-        },
-      });
-
-      if (response.ok) {
-        const updatedUser = await response.json();
-        localStorage.setItem('user_data', JSON.stringify(updatedUser));
-        setState(prev => ({ ...prev, user: updatedUser }));
-      }
+      // use client for authenticated request
+      // token is automatically included by client
+      const updatedUser = await nuUserService.getById(state.user._id);
+      
+      localStorage.setItem('user_data', JSON.stringify(updatedUser));
+      setState(prev => ({ ...prev, user: updatedUser }));
     } catch (error) {
       console.error('Failed to refresh user data:', error);
+      // if token is invalid, logout user
+      if (error instanceof Error && error.message.includes('403')) {
+        logout();
+      }
     }
   };
 
