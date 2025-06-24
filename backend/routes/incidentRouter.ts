@@ -22,13 +22,24 @@ import mongoose from 'mongoose';
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Incident'
+ *       InternalServerError:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  message:
+ *                      type: string
+ *                      description: Error message describing the issue
+ *                      example: Internal Server Error
  */
 incidentRouter.get('/', async (req: Request, res: Response) => {
     try {
         const incidents: mongoose.Document[] = await Incident.find().populate(["reportedBy", "workplaceId"]);
         res.json(incidents);
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 })
 
@@ -55,13 +66,24 @@ incidentRouter.get('/', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Incident'
+ *       InternalServerError:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  message:
+ *                      type: string
+ *                      description: Error message describing the issue
+ *                      example: Internal Server Error
  */
 incidentRouter.get('/:id', async (req: Request, res: Response) => {
     try {
         const incident = await Incident.findById(req.params.id).populate(["reportedBy", "workplaceId"]);
         res.json(incident);
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 });
 
@@ -115,6 +137,17 @@ incidentRouter.get('/:id', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Incident'
+  *       InternalServerError:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  message:
+ *                      type: string
+ *                      description: Error message describing the issue
+ *                      example: Internal Server Error
  */
 incidentRouter.post('/', async (req: Request, res: Response) => {
 
@@ -132,9 +165,9 @@ incidentRouter.post('/', async (req: Request, res: Response) => {
 
     try {
         const newIncident: mongoose.Document = await incident.save()
-        res.json(newIncident)
+        res.status(201).json(newIncident)
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 })
 
@@ -192,6 +225,17 @@ incidentRouter.post('/', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Incident'
+ *       InternalServerError:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  message:
+ *                      type: string
+ *                      description: Error message describing the issue
+ *                      example: Internal Server Error
  */
 incidentRouter.patch('/:id', async (req: Request, res: Response) => {
     try {
@@ -208,7 +252,7 @@ incidentRouter.patch('/:id', async (req: Request, res: Response) => {
             res.json(patchedIncident);
         }
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 
 })
@@ -237,13 +281,24 @@ incidentRouter.patch('/:id', async (req: Request, res: Response) => {
  *               properties:
  *                 message:
  *                   type: string
+ *       InternalServerError:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  message:
+ *                      type: string
+ *                      description: Error message describing the issue
+ *                      example: Internal Server Error
  */
 incidentRouter.delete('/:id', async (req: Request, res: Response) => {
     try {
         await Incident.findByIdAndDelete(req.params.id);
         res.json({ message: "Deletion successful" });
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 
 

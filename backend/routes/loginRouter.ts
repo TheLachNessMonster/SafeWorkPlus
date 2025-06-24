@@ -43,6 +43,17 @@ const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
  *             schema:
  *               type: string
  *               example: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
+ *       InternalServerError:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  message:
+ *                      type: string
+ *                      description: Error message describing the issue
+ *                      example: Internal Server Error
  */
 
 loginRouter.post('/:id', async (req: Request, res: Response) => {
@@ -67,7 +78,7 @@ loginRouter.post('/:id', async (req: Request, res: Response) => {
         }
 
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 
 })
@@ -83,7 +94,7 @@ loginRouter.get('/:id', authToken, async (req: Request, res: Response) => {
         const user = await User.findById(req.params.id).select('-password').populate('workplaceId');
         res.json(user);
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 })
 

@@ -8,13 +8,11 @@ import * as bcrypt from 'bcrypt';
  * @param {string} input -  string to be hashed
  * @returns hashed string
  */
-export async function hasher(input: string) {
-    await bcrypt.hash(input, 10, (err, hash) => {
-        if (err) throw err;
-        return hash;
-    })
-}
 
+export async function hasher(input: string) {
+    var output = await bcrypt.hash(input, 10)
+    return output;
+}
 
 
 

@@ -28,7 +28,7 @@ workplaceRouter.get('/', async (req: Request, res: Response) => {
         const workplaces: mongoose.Document[] = await Workplace.find();
         res.json(workplaces);
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 })
 
@@ -55,13 +55,24 @@ workplaceRouter.get('/', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Workplace'
+ *       InternalServerError:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  message:
+ *                      type: string
+ *                      description: Error message describing the issue
+ *                      example: Internal Server Error
  */
 workplaceRouter.get('/:id', async (req: Request, res: Response) => {
     try {
         const workplace = await Workplace.findById(req.params.id)
         res.json(workplace);
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 });
 
@@ -96,6 +107,17 @@ workplaceRouter.get('/:id', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Workplace'
+ *       InternalServerError:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  message:
+ *                      type: string
+ *                      description: Error message describing the issue
+ *                      example: Internal Server Error
  */
 
 workplaceRouter.post('/', async (req: Request, res: Response) => {
@@ -108,9 +130,9 @@ workplaceRouter.post('/', async (req: Request, res: Response) => {
 
     try {
         const newWorkplace: mongoose.Document = await workplace.save()
-        res.json(newWorkplace)
+        res.status(201).json(newWorkplace)
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 })
 
@@ -153,6 +175,17 @@ workplaceRouter.post('/', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Workplace'
+ *       InternalServerError:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  message:
+ *                      type: string
+ *                      description: Error message describing the issue
+ *                      example: Internal Server Error
  */
 workplaceRouter.patch('/:id', async (req: Request, res: Response) => {
     try {
@@ -169,7 +202,7 @@ workplaceRouter.patch('/:id', async (req: Request, res: Response) => {
             res.json(patchedWorkplace);
         }
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 
 })
@@ -200,13 +233,24 @@ workplaceRouter.patch('/:id', async (req: Request, res: Response) => {
  *               properties:
  *                 message:
  *                   type: string
+ *       InternalServerError:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  message:
+ *                      type: string
+ *                      description: Error message describing the issue
+ *                      example: Internal Server Error
  */
 workplaceRouter.delete('/:id', async (req: Request, res: Response) => {
     try {
         await Workplace.findByIdAndDelete(req.params.id);
         res.json({ message: "Deletion successful" });
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 
 

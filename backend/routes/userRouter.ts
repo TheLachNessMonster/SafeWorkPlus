@@ -23,6 +23,17 @@ import { hasher } from '../api/auth';
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/User'
+ *       InternalServerError:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  message:
+ *                      type: string
+ *                      description: Error message describing the issue
+ *                      example: Internal Server Error
  */
 
 userRouter.get('/', async (req: Request, res: Response) => {
@@ -57,6 +68,17 @@ userRouter.get('/', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *       InternalServerError:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  message:
+ *                      type: string
+ *                      description: Error message describing the issue
+ *                      example: Internal Server Error
  */
 userRouter.get('/:id', async (req: Request, res: Response) => {
     try {
@@ -107,6 +129,17 @@ userRouter.get('/:id', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *       InternalServerError:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  message:
+ *                      type: string
+ *                      description: Error message describing the issue
+ *                      example: Internal Server Error
  */
 userRouter.post('/', async (req: Request, res: Response) => {
 
@@ -173,6 +206,17 @@ userRouter.post('/', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *       InternalServerError:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  message:
+ *                      type: string
+ *                      description: Error message describing the issue
+ *                      example: Internal Server Error
  */
 userRouter.patch('/:id', async (req: Request, res: Response) => {
     try {
@@ -224,6 +268,17 @@ userRouter.patch('/:id', async (req: Request, res: Response) => {
  *               properties:
  *                 message:
  *                   type: string
+ *       InternalServerError:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  message:
+ *                      type: string
+ *                      description: Error message describing the issue
+ *                      example: Internal Server Error
  */
 userRouter.delete('/:id', async (req: Request, res: Response) => {
     try {
