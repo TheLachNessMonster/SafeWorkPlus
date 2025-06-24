@@ -54,6 +54,16 @@ const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
  *                      type: string
  *                      description: Error message describing the issue
  *                      example: Internal Server Error
+ *       Unauthorized:
+ *         description: Authentication failed due to invalid or missing credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  message:
+ *                      type: string
+ *                      description: Failed to find user 
  */
 
 loginRouter.post('/:id', async (req: Request, res: Response) => {
@@ -67,7 +77,7 @@ loginRouter.post('/:id', async (req: Request, res: Response) => {
             const validated = await bcrypt.compare(req.body.password, user.password);
             //check if failed - respond with invalid credentials if so
             if (!validated) {
-                res.json({ message: "Invalid credentials" })
+                res.status(401).json({ message: "Invalid credentials" })
             } else {
                 if (secretKey) {
                     //if successful, issue token

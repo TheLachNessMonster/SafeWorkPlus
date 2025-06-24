@@ -41,7 +41,7 @@ userRouter.get('/', async (req: Request, res: Response) => {
         const users: mongoose.Document[] = await User.find().select('-password').populate('workplaceId');
         res.json(users);
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 })
 
@@ -85,7 +85,7 @@ userRouter.get('/:id', async (req: Request, res: Response) => {
         const user = await User.findById(req.params.id).select('-password').populate('workplaceId');
         res.json(user);
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 });
 
@@ -123,7 +123,7 @@ userRouter.get('/:id', async (req: Request, res: Response) => {
  *               password:
  *                 type: string
  *     responses:
- *       200:
+ *       201:
  *         description: The created user
  *         content:
  *           application/json:
@@ -156,9 +156,9 @@ userRouter.post('/', async (req: Request, res: Response) => {
 
     try {
         const newUser: mongoose.Document = await user.save()
-        res.json(newUser)
+        res.status(201).json(newUser)
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 })
 
@@ -237,7 +237,7 @@ userRouter.patch('/:id', async (req: Request, res: Response) => {
             res.json(patchedUser);
         }
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 
 })
@@ -285,7 +285,7 @@ userRouter.delete('/:id', async (req: Request, res: Response) => {
         await User.findByIdAndDelete(req.params.id);
         res.json({ message: "Deletion successful" });
     } catch (err: any) {
-        res.json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 
 

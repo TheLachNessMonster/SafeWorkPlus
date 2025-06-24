@@ -40,7 +40,7 @@ app.use('/users', userRouter)
 app.use('/incidents', incidentRouter)
 app.use('/login', loginRouter)
 
-//Serve api docs - move to FE?
+//Serve api docs
 import swaggerUI from 'swagger-ui-express'
 import { swaggerSpec } from './swagger'
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));

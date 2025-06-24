@@ -131,7 +131,7 @@ incidentRouter.get('/:id', async (req: Request, res: Response) => {
  *               riskLevel:
  *                 type: string
  *     responses:
- *       200:
+ *       201:
  *         description: The created incident
  *         content:
  *           application/json:

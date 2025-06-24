@@ -101,7 +101,7 @@ workplaceRouter.get('/:id', async (req: Request, res: Response) => {
  *               location:
  *                 type: string
  *     responses:
- *       200:
+ *       201:
  *         description: The created workplace
  *         content:
  *           application/json:
