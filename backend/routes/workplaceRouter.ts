@@ -7,7 +7,21 @@ import mongoose from 'mongoose';
 
 
 /**
- * GET all, serialise as list
+ * @openapi
+ * /workplaces:
+ *   get:
+ *     summary: Retrieve a list of all workplaces
+ *     tags:
+ *       - Workplaces
+ *     responses:
+ *       200:
+ *         description: A list of workplaces
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Workplace'
  */
 workplaceRouter.get('/', async (req: Request, res: Response) => {
     try {
@@ -22,7 +36,25 @@ workplaceRouter.get('/', async (req: Request, res: Response) => {
 
 
 /**
- *GET by ID
+ * @openapi
+ * /workplaces/{id}:
+ *   get:
+ *     summary: Retrieve a workplace by ID
+ *     tags:
+ *       - Workplaces
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: A workplace object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Workplace'
  */
 workplaceRouter.get('/:id', async (req: Request, res: Response) => {
     try {
@@ -37,8 +69,35 @@ workplaceRouter.get('/:id', async (req: Request, res: Response) => {
 
 
 /**
- * POST a new document of router 'type' to DB
+ * @openapi
+ * /workplaces:
+ *   post:
+ *     summary: Create a new workplace
+ *     tags:
+ *       - Workplaces
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - location
+ *             properties:
+ *               name:
+ *                 type: string
+ *               location:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: The created workplace
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Workplace'
  */
+
 workplaceRouter.post('/', async (req: Request, res: Response) => {
 
     //Instantiating a new person object to send to the database
@@ -62,6 +121,38 @@ workplaceRouter.post('/', async (req: Request, res: Response) => {
  * Updates document using PATCH.  
  * Type assertion used allows looping instead of direct mapping as service layer ensures PATCH req body takes shape of router type
  * Future refactoring will make this algorithm generic and modular
+ */
+/**
+ * @openapi
+ * /workplaces/{id}:
+ *   patch:
+ *     summary: Update fields of a workplace by ID
+ *     tags:
+ *       - Workplaces
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               location:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: The updated workplace
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Workplace'
  */
 workplaceRouter.patch('/:id', async (req: Request, res: Response) => {
     try {
@@ -87,7 +178,28 @@ workplaceRouter.patch('/:id', async (req: Request, res: Response) => {
 
 
 /**
- * DELETE document from DB by ID/
+ * @openapi
+ * /workplaces/{id}:
+ *   delete:
+ *     summary: Delete a workplace by ID
+ *     tags:
+ *       - Workplaces
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Deletion confirmation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
  */
 workplaceRouter.delete('/:id', async (req: Request, res: Response) => {
     try {

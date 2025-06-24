@@ -8,8 +8,23 @@ import { hasher } from '../api/auth';
 
 
 /**
- * GET all, serialise as list
+ * @openapi
+ * /users:
+ *   get:
+ *     summary: Retrieve a list of all users
+ *     tags:
+ *       - Users
+ *     responses:
+ *       200:
+ *         description: A list of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
  */
+
 userRouter.get('/', async (req: Request, res: Response) => {
     try {
         const users: mongoose.Document[] = await User.find().select('-password').populate('workplaceId');
@@ -23,7 +38,25 @@ userRouter.get('/', async (req: Request, res: Response) => {
 
 
 /**
- *GET by ID
+ * @openapi
+ * /users/{id}:
+ *   get:
+ *     summary: Retrieve a single user by ID
+ *     tags:
+ *       - Users
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: A user object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  */
 userRouter.get('/:id', async (req: Request, res: Response) => {
     try {
@@ -38,7 +71,42 @@ userRouter.get('/:id', async (req: Request, res: Response) => {
 
 
 /**
- * POST a new document of router 'type' to DB
+ * @openapi
+ * /users:
+ *   post:
+ *     summary: Create a new user
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - role
+ *               - workplaceId
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *               workplaceId:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: The created user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  */
 userRouter.post('/', async (req: Request, res: Response) => {
 
@@ -69,6 +137,43 @@ userRouter.post('/', async (req: Request, res: Response) => {
  * Type assertion used allows looping instead of direct mapping as service layer ensures PATCH req body takes shape of router type
  * Future refactoring will make this algorithm generic and modular
  */
+
+/**
+ * @openapi
+ * /users/{id}:
+ *   patch:
+ *     summary: Update user fields by ID
+ *     tags:
+ *       - Users
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *               workplaceId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: The updated user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ */
 userRouter.patch('/:id', async (req: Request, res: Response) => {
     try {
         //currently, password can't be reset if changed
@@ -97,7 +202,28 @@ userRouter.patch('/:id', async (req: Request, res: Response) => {
 
 
 /**
- * DELETE document from DB by ID/
+ * @openapi
+ * /users/{id}:
+ *   delete:
+ *     summary: Delete a user by ID
+ *     tags:
+ *       - Users
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Deletion confirmation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
  */
 userRouter.delete('/:id', async (req: Request, res: Response) => {
     try {

@@ -40,6 +40,10 @@ app.use('/users', userRouter)
 app.use('/incidents', incidentRouter)
 app.use('/login', loginRouter)
 
+//Serve api docs - move to FE?
+import swaggerUI from 'swagger-ui-express'
+import { swaggerSpec } from './swagger'
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 //Server listening
 app.listen(3000, ()=>console.log("Server running"));

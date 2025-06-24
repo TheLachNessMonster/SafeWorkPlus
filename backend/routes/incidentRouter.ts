@@ -7,7 +7,21 @@ import mongoose from 'mongoose';
 
 
 /**
- * GET all, serialise as list
+ * @openapi
+ * /incidents:
+ *   get:
+ *     summary: Retrieve a list of all incidents
+ *     tags:
+ *       - Incidents
+ *     responses:
+ *       200:
+ *         description: A list of incident records
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Incident'
  */
 incidentRouter.get('/', async (req: Request, res: Response) => {
     try {
@@ -22,7 +36,25 @@ incidentRouter.get('/', async (req: Request, res: Response) => {
 
 
 /**
- *GET by ID
+ * @openapi
+ * /incidents/{id}:
+ *   get:
+ *     summary: Retrieve a single incident by ID
+ *     tags:
+ *       - Incidents
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: A single incident record
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Incident'
  */
 incidentRouter.get('/:id', async (req: Request, res: Response) => {
     try {
@@ -36,26 +68,53 @@ incidentRouter.get('/:id', async (req: Request, res: Response) => {
 
 
 
-//Why does this duplicate function exist?
-// incidentRouter.get('/workplace/:workplaceId', async (req: Request, res: Response) => {
-//   try {
-//     const incidents = await Incident.find({ workplaceId: req.params.workplaceId })
-//       .populate(["reportedBy", "workplaceId"])
-//       .sort({ createdAt: -1 });
-//     res.status(200).json(incidents);
-//   } catch (err: any) {
-//     res.status(500).json({ message: err.message });
-//   }
-// });
-
-
-// CREATE
-
-
-
-
 /**
- * POST a new document of router 'type' to DB
+ * @openapi
+ * /incidents:
+ *   post:
+ *     summary: Create a new incident
+ *     tags:
+ *       - Incidents
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - description
+ *               - photoPath
+ *               - reportedBy
+ *               - workplaceId
+ *               - status
+ *               - createdAt
+ *               - riskLevel
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               photoPath:
+ *                 type: string
+ *               reportedBy:
+ *                 type: string
+ *               workplaceId:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *               createdAt:
+ *                 type: string
+ *                 format: date-time
+ *               riskLevel:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: The created incident
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Incident'
  */
 incidentRouter.post('/', async (req: Request, res: Response) => {
 
@@ -83,9 +142,56 @@ incidentRouter.post('/', async (req: Request, res: Response) => {
 
 
 /**
+ * 
  * Updates document using PATCH.  
  * Type assertion used allows looping instead of direct mapping as service layer ensures PATCH req body takes shape of router type
  * Future refactoring will make this algorithm generic and modular
+ */
+
+/**
+ * @openapi
+ * /incidents/{id}:
+ *   patch:
+ *     summary: Update incident fields by ID
+ *     tags:
+ *       - Incidents
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               photoPath:
+ *                 type: string
+ *               reportedBy:
+ *                 type: string
+ *               workplaceId:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *               createdAt:
+ *                 type: string
+ *                 format: date-time
+ *               riskLevel:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: The updated incident
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Incident'
  */
 incidentRouter.patch('/:id', async (req: Request, res: Response) => {
     try {
@@ -108,10 +214,29 @@ incidentRouter.patch('/:id', async (req: Request, res: Response) => {
 })
 
 
-
-
 /**
- * DELETE document from DB by ID/
+ * @openapi
+ * /incidents/{id}:
+ *   delete:
+ *     summary: Delete an incident by ID
+ *     tags:
+ *       - Incidents
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Deletion confirmation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
  */
 incidentRouter.delete('/:id', async (req: Request, res: Response) => {
     try {
@@ -128,3 +253,22 @@ incidentRouter.delete('/:id', async (req: Request, res: Response) => {
 
 
 export default incidentRouter;
+
+
+
+
+//Why does this duplicate function exist?
+// incidentRouter.get('/workplace/:workplaceId', async (req: Request, res: Response) => {
+//   try {
+//     const incidents = await Incident.find({ workplaceId: req.params.workplaceId })
+//       .populate(["reportedBy", "workplaceId"])
+//       .sort({ createdAt: -1 });
+//     res.status(200).json(incidents);
+//   } catch (err: any) {
+//     res.status(500).json({ message: err.message });
+//   }
+// });
+
+
+// CREATE
+

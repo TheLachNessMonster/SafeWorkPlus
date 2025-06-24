@@ -12,10 +12,39 @@ const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
 
 
 /**
- * Handles a POST containing login info (userID and password)
- * Compares input password with stored hash
- * Issues jwt token signed by serverside key if valid
+ * @openapi
+ * /login/{id}:
+ *   post:
+ *     summary: Authenticate a user by ID and password, then return a JWT token
+ *     tags:
+ *       - Login
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *             properties:
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: JWT token on successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
  */
+
 loginRouter.post('/:id', async (req: Request, res: Response) => {
     try {
         //gets user from DB
