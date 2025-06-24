@@ -12,4 +12,5 @@ const nuClient = new NewApiClient('http://localhost:3000');
 const nuIncidentService = new GenericService<Incident>(nuClient, '/incidents');
 const nuWorkplaceService = new GenericService<Workplace>(nuClient, '/workplaces');
 const nuUserService= new GenericService<User>(nuClient, '/users');
+
 export {nuIncidentService, nuWorkplaceService, nuUserService};
