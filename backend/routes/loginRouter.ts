@@ -3,7 +3,7 @@ import { authToken} from '../api/auth'
 import * as bcrypt from 'bcrypt'
 import * as jwt from 'jsonwebtoken'
 const loginRouter: Router = Router();
-import { IUser, User } from '../models/user';
+import { User } from '../models/user';
 import dotenv from 'dotenv';
 dotenv.config();
 const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
@@ -11,9 +11,11 @@ const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
 
 
 
-
-
-//Handles a POST containing the login data:
+/**
+ * Handles a POST containing login info (userID and password)
+ * Compares input password with stored hash
+ * Issues jwt token signed by serverside key if valid
+ */
 loginRouter.post('/:id', async (req: Request, res: Response) => {
     try {
         //gets user from DB
@@ -42,7 +44,11 @@ loginRouter.post('/:id', async (req: Request, res: Response) => {
 })
 
 
-//test secure route
+
+
+/**
+ * Test route for authToken middleware
+ */
 loginRouter.get('/:id', authToken, async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.params.id).select('-password').populate('workplaceId');
@@ -53,6 +59,8 @@ loginRouter.get('/:id', authToken, async (req: Request, res: Response) => {
 })
 
 
+
+    
 export default loginRouter;
 
 

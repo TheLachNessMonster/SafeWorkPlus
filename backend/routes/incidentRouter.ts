@@ -4,24 +4,11 @@ import { IIncident, Incident } from '../models/incident';
 import mongoose from 'mongoose';
 
 
-//GET incidents filtered by workplace
+
+
 /**
- * 
+ * GET all, serialise as list
  */
-incidentRouter.get('/workplace/:workplaceId', async (req: Request, res: Response) => {
-  try {
-    const incidents = await Incident.find({ workplaceId: req.params.workplaceId })
-      .populate(["reportedBy", "workplaceId"])
-      .sort({ createdAt: -1 });
-    res.status(200).json(incidents);
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-//TODO: PUT update incident status
-
-//GET (ALL)
 incidentRouter.get('/', async (req: Request, res: Response) => {
     try {
         const incidents: mongoose.Document[] = await Incident.find().populate(["reportedBy", "workplaceId"]);
@@ -32,7 +19,11 @@ incidentRouter.get('/', async (req: Request, res: Response) => {
 })
 
 
-// GET (ID)
+
+
+/**
+ *GET by ID
+ */
 incidentRouter.get('/:id', async (req: Request, res: Response) => {
     try {
         const incident = await Incident.findById(req.params.id).populate(["reportedBy", "workplaceId"]);
@@ -43,10 +34,31 @@ incidentRouter.get('/:id', async (req: Request, res: Response) => {
 });
 
 
+
+
+//Why does this duplicate function exist?
+// incidentRouter.get('/workplace/:workplaceId', async (req: Request, res: Response) => {
+//   try {
+//     const incidents = await Incident.find({ workplaceId: req.params.workplaceId })
+//       .populate(["reportedBy", "workplaceId"])
+//       .sort({ createdAt: -1 });
+//     res.status(200).json(incidents);
+//   } catch (err: any) {
+//     res.status(500).json({ message: err.message });
+//   }
+// });
+
+
 // CREATE
+
+
+
+
+/**
+ * POST a new document of router 'type' to DB
+ */
 incidentRouter.post('/', async (req: Request, res: Response) => {
 
-    //Instantiating a new person object to send to the database
     const incident: mongoose.Document = new Incident({
         title: req.body.title,
             description: req.body.description,
@@ -67,7 +79,14 @@ incidentRouter.post('/', async (req: Request, res: Response) => {
     }
 })
 
-//NOTE: "can't set headers after response is sent to the client" error usually indicates you have competing responses
+
+
+
+/**
+ * Updates document using PATCH.  
+ * Type assertion used allows looping instead of direct mapping as service layer ensures PATCH req body takes shape of router type
+ * Future refactoring will make this algorithm generic and modular
+ */
 incidentRouter.patch('/:id', async (req: Request, res: Response) => {
     try {
         const incident = await Incident.findById(req.params.id);
@@ -88,7 +107,12 @@ incidentRouter.patch('/:id', async (req: Request, res: Response) => {
 
 })
 
-// DELETE
+
+
+
+/**
+ * DELETE document from DB by ID/
+ */
 incidentRouter.delete('/:id', async (req: Request, res: Response) => {
     try {
         await Incident.findByIdAndDelete(req.params.id);
@@ -99,5 +123,8 @@ incidentRouter.delete('/:id', async (req: Request, res: Response) => {
 
 
 })
+
+
+
 
 export default incidentRouter;
