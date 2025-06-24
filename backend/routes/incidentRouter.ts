@@ -5,6 +5,9 @@ import mongoose from 'mongoose';
 
 
 //GET incidents filtered by workplace
+/**
+ * 
+ */
 incidentRouter.get('/workplace/:workplaceId', async (req: Request, res: Response) => {
   try {
     const incidents = await Incident.find({ workplaceId: req.params.workplaceId })

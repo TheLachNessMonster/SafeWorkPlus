@@ -1,7 +1,20 @@
 import mongoose, { Date, Schema, model } from "mongoose";
 
 
-//TS interface
+
+
+/**
+ * Interface for Incident data storage, to be used as schema base
+ * @interface IIncident
+ * @prop title @type {string}
+ * @prop description @type {string}
+ * @prop photopath @type {string}
+ * @prop reportedBy @type {mongoose.Schema.Types.ObjectId}
+ * @prop workplaceId @type {mongoose.Schema.Types.ObjectId}
+ * @prop status @type {string}
+ * @prop createdAt @type {string}
+ * @prop riskLevel @type {string}
+ */
 export interface IIncident {
     title: string,
     description: string,
@@ -9,12 +22,18 @@ export interface IIncident {
     reportedBy: mongoose.Schema.Types.ObjectId,
     workplaceId: mongoose.Schema.Types.ObjectId,
     status: string,
-    //NOTE: THIS IS THE MONGOOSE DATE TYPE
     createdAt: Date,
     riskLevel: string
 };
 
 
+
+
+/**
+ * @name IncidentSchema
+ * Schema implementing IIncident interface for Mongoose usage
+ * @type {Schema<IIncident>}
+ */
 const IncidentSchema = new Schema<IIncident>({
 
     title: { type: String, required: true },
@@ -35,17 +54,14 @@ const IncidentSchema = new Schema<IIncident>({
         required: true
     },
     
-    //make strict required (?)
     status: {
         type: String,
         set: statusDefault,
     },
 
-    //make strict required (?) 
     createdAt: {
         type: Date,
         set: createdAtDefault
-        //set: createdAtDefault
     },
 
     riskLevel: {
@@ -58,6 +74,13 @@ const IncidentSchema = new Schema<IIncident>({
 
 
 
+
+/**
+ * @function createdAtDefault
+ * used for managing createdAt POST requests in JSON format where default behaviour is represented by an empty string
+ * @param {string} input - user input date and time or an empty string for default behaviour
+ * @returns {Date} - user input date and time or current date and time for default behaviour
+ */
 function createdAtDefault(input:string){
     if(input === ""){
         return new Date()
@@ -68,6 +91,14 @@ function createdAtDefault(input:string){
 }
 
 
+
+
+/**
+ * @function statusDefault
+  * used for managing status POST requests in JSON format where default behaviour is represented by an empty string
+ * @param {string} input - user input status or an empty string for default behaviour
+ * @returns {string} - - user input status or "Open" for default behaviour
+ */
 function statusDefault(input:string){
     if(input === ""){
         return "Open"
@@ -77,5 +108,6 @@ function statusDefault(input:string){
 }
 
 
-//ES TS export default
+
+
 export const Incident = model<IIncident>('Incident', IncidentSchema)
