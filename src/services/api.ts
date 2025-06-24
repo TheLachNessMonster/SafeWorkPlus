@@ -1,6 +1,3 @@
-//Change to new branch Types_Service_Extension
-// src/services/api.ts
-
 import type { Incident, Workplace, User } from '../types';
 import {GenericService} from '../../backend/api/service'
 import { NewApiClient } from '../../backend/api/newapi';
