@@ -7,6 +7,14 @@ interface LayoutProps {
   showBackButton?: boolean;
   onBack?: () => void;
 }
+import { usePermissions } from '../hooks/usePermissions';
+
+interface LayoutProps {
+  children: React.ReactNode;
+  title?: string;
+  showBackButton?: boolean;
+  onBack?: () => void;
+}
 
 export default function Layout({ 
   children, 
@@ -15,6 +23,7 @@ export default function Layout({
   onBack
 }: LayoutProps) {
   const location = useLocation();
+  const permissions = usePermissions();
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -39,24 +48,32 @@ export default function Layout({
               label="Dashboard" 
               isActive={location.pathname === '/dashboard'}
             />
+            
+            {/* incidents - different labels based on role */}
             <NavLink 
               to="/incidents" 
               icon="📋" 
-              label="All Incidents" 
+              label={permissions.isForeman ? "All Incidents" : "My Incidents"}
               isActive={location.pathname === '/incidents'}
             />
+            
             <NavLink 
               to="/create-report" 
               icon="➕" 
               label="Report Incident" 
               isActive={location.pathname === '/create-report'}
             />
-            <NavLink 
-              to="/workplaces" 
-              icon="🏢" 
-              label="Manage Workplaces" 
-              isActive={location.pathname === '/workplaces'}
-            />
+            
+            {/* foreman-only navigation */}
+            {permissions.canManageWorkplaces && (
+              <NavLink 
+                to="/workplaces" 
+                icon="🏢" 
+                label="Manage Workplaces" 
+                isActive={location.pathname === '/workplaces'}
+              />
+            )}
+            
             <NavLink 
               to="/profile" 
               icon="👤" 
@@ -87,6 +104,13 @@ export default function Layout({
               </div>
               
               <div className="flex items-center space-x-2">
+                {/* role indicator */}
+                <div className={`px-2 py-1 rounded text-xs ${
+                  permissions.isForeman 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'bg-gray-100 text-gray-600'
+                }`}>
+                </div>
                 <button 
                   className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                   title="Notifications"
@@ -102,7 +126,12 @@ export default function Layout({
             <div className="px-6 py-4 flex justify-between items-center">
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
-                <p className="text-sm text-gray-600 mt-1">Main Construction Site</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  {permissions.currentUser?.workplaceId && typeof permissions.currentUser.workplaceId === 'object'
+                    ? `${(permissions.currentUser.workplaceId as any).name || 'Workplace'}`
+                    : 'Main Construction Site'
+                  }
+                </p>
               </div>
               <div className="flex items-center space-x-4">
                 <button 
@@ -123,7 +152,7 @@ export default function Layout({
         </main>
       </div>
 
-      {/* mobile bottom nav - semantic nav element */}
+      {/* mobile bottom nav */}
       <nav className="lg:hidden bg-white border-t border-gray-200 fixed bottom-0 w-full z-50">
         <div className="flex justify-around py-2">
           <MobileNavLink 
@@ -138,12 +167,24 @@ export default function Layout({
             label="Report" 
             isActive={location.pathname === '/create-report'}
           />
-          <MobileNavLink 
-            to="/workplaces" 
-            icon="🏢" 
-            label="Workplaces" 
-            isActive={location.pathname === '/workplaces'}
-          />
+          
+          {/* conditional mobile nav based on permissions */}
+          {permissions.canManageWorkplaces ? (
+            <MobileNavLink 
+              to="/workplaces" 
+              icon="🏢" 
+              label="Workplaces" 
+              isActive={location.pathname === '/workplaces'}
+            />
+          ) : (
+            <MobileNavLink 
+              to="/incidents" 
+              icon="📋" 
+              label="Incidents" 
+              isActive={location.pathname === '/incidents'}
+            />
+          )}
+          
           <MobileNavLink 
             to="/profile" 
             icon="👤" 
