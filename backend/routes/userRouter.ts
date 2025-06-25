@@ -23,23 +23,37 @@ import { hasher } from '../api/auth';
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/User'
- *       InternalServerError:
+ *       404:
+ *         description: No users found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Document not found"
+ *       500:
  *         description: Server encountered an unexpected condition
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                  message:
- *                      type: string
- *                      description: Error message describing the issue
- *                      example: Internal Server Error
+ *                 message:
+ *                   type: string
+ *                   example: "Internal Server Error"
  */
+
 
 userRouter.get('/', async (req: Request, res: Response) => {
     try {
         const users: mongoose.Document[] = await User.find().select('-password').populate('workplaceId');
-        res.json(users);
+        if(!users.length){
+            res.status(404).json({ message: "Document not found" }) 
+        }else{
+            res.json(users);
+        }
     } catch (err: any) {
         res.status(500).json({ message: err.message })
     }
@@ -59,6 +73,7 @@ userRouter.get('/', async (req: Request, res: Response) => {
  *       - name: id
  *         in: path
  *         required: true
+ *         description: The ID of the user to retrieve
  *         schema:
  *           type: string
  *     responses:
@@ -68,22 +83,36 @@ userRouter.get('/', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
- *       InternalServerError:
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Document not found"
+ *       500:
  *         description: Server encountered an unexpected condition
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                  message:
- *                      type: string
- *                      description: Error message describing the issue
- *                      example: Internal Server Error
+ *                 message:
+ *                   type: string
+ *                   example: "Internal Server Error"
  */
+
 userRouter.get('/:id', async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.params.id).select('-password').populate('workplaceId');
-        res.json(user);
+        if(!user){
+            res.status(404).json({ message: "Document not found" }) 
+        }else{
+            res.json(user);
+        }
     } catch (err: any) {
         res.status(500).json({ message: err.message })
     }
@@ -139,7 +168,7 @@ userRouter.get('/:id', async (req: Request, res: Response) => {
  *                 message:
  *                   type: string
  *                   example: "Validation failed: email is required"
- *       InternalServerError:
+ *       500:
  *         description: Server encountered an unexpected condition
  *         content:
  *           application/json:
@@ -195,6 +224,7 @@ userRouter.post('/', async (req: Request, res: Response) => {
  *       - name: id
  *         in: path
  *         required: true
+ *         description: The ID of the user to update
  *         schema:
  *           type: string
  *     requestBody:
@@ -229,7 +259,17 @@ userRouter.post('/', async (req: Request, res: Response) => {
  *                 message:
  *                   type: string
  *                   example: "Validation failed: email must be a valid email address"
- *       InternalServerError:
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Document not found"
+ *       500:
  *         description: Server encountered an unexpected condition
  *         content:
  *           application/json:
@@ -238,10 +278,8 @@ userRouter.post('/', async (req: Request, res: Response) => {
  *               properties:
  *                 message:
  *                   type: string
- *                   description: Error message describing the issue
  *                   example: "Internal Server Error"
  */
-
 userRouter.patch('/:id', async (req: Request, res: Response) => {
     try {
         //currently, password can't be reset if changed
@@ -259,6 +297,9 @@ userRouter.patch('/:id', async (req: Request, res: Response) => {
             await user.save();
             const patchedUser = await User.findById(req.params.id).populate('workplaceId');
             res.json(patchedUser);
+        }else{
+
+            res.status(404).json({ message: "Document not found" }) 
         }
     } catch (err: any) {
         if (err.name === 'ValidationError') {
@@ -284,6 +325,7 @@ userRouter.patch('/:id', async (req: Request, res: Response) => {
  *       - name: id
  *         in: path
  *         required: true
+ *         description: The ID of the user to delete
  *         schema:
  *           type: string
  *     responses:
@@ -296,22 +338,37 @@ userRouter.patch('/:id', async (req: Request, res: Response) => {
  *               properties:
  *                 message:
  *                   type: string
- *       InternalServerError:
+ *                   example: "Deletion successful"
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Document not found"
+ *       500:
  *         description: Server encountered an unexpected condition
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                  message:
- *                      type: string
- *                      description: Error message describing the issue
- *                      example: Internal Server Error
+ *                 message:
+ *                   type: string
+ *                   example: "Internal Server Error"
  */
+
 userRouter.delete('/:id', async (req: Request, res: Response) => {
     try {
-        await User.findByIdAndDelete(req.params.id);
-        res.json({ message: "Deletion successful" });
+        let target = await User.findByIdAndDelete(req.params.id);
+        if(!target){
+            res.status(404).json({ message: "Document not found" }) 
+        }else{
+           res.json({ message: "Deletion successful" }); 
+        }
     } catch (err: any) {
         res.status(500).json({ message: err.message })
     }

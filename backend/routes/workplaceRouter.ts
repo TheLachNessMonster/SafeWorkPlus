@@ -22,11 +22,35 @@ import mongoose from 'mongoose';
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Workplace'
+ *       404:
+ *         description: No workplaces found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Document not found"
+ *       500:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Internal Server Error"
  */
+
 workplaceRouter.get('/', async (req: Request, res: Response) => {
     try {
         const workplaces: mongoose.Document[] = await Workplace.find();
-        res.json(workplaces);
+        if (!workplaces.length) { res.status(404).json({ message: "Document not found" }) } else {
+            res.json(workplaces);
+        }
+
     } catch (err: any) {
         res.status(500).json({ message: err.message })
     }
@@ -46,6 +70,7 @@ workplaceRouter.get('/', async (req: Request, res: Response) => {
  *       - name: id
  *         in: path
  *         required: true
+ *         description: The ID of the workplace to retrieve
  *         schema:
  *           type: string
  *     responses:
@@ -55,22 +80,34 @@ workplaceRouter.get('/', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Workplace'
- *       InternalServerError:
+ *       404:
+ *         description: Workplace not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Document not found"
+ *       500:
  *         description: Server encountered an unexpected condition
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                  message:
- *                      type: string
- *                      description: Error message describing the issue
- *                      example: Internal Server Error
+ *                 message:
+ *                   type: string
+ *                   example: "Internal Server Error"
  */
+
 workplaceRouter.get('/:id', async (req: Request, res: Response) => {
     try {
         const workplace = await Workplace.findById(req.params.id)
-        res.json(workplace);
+        if (!workplace) { res.status(404).json({ message: "Document not found" }) } else {
+            res.json(workplace);
+        }
     } catch (err: any) {
         res.status(500).json({ message: err.message })
     }
@@ -116,7 +153,7 @@ workplaceRouter.get('/:id', async (req: Request, res: Response) => {
  *                 message:
  *                   type: string
  *                   example: "Validation failed: name is required"
- *       InternalServerError:
+ *       500:
  *         description: Server encountered an unexpected condition
  *         content:
  *           application/json:
@@ -169,6 +206,7 @@ workplaceRouter.post('/', async (req: Request, res: Response) => {
  *       - name: id
  *         in: path
  *         required: true
+ *         description: The ID of the workplace to update
  *         schema:
  *           type: string
  *     requestBody:
@@ -199,7 +237,17 @@ workplaceRouter.post('/', async (req: Request, res: Response) => {
  *                 message:
  *                   type: string
  *                   example: "Validation failed: name is required"
- *       InternalServerError:
+ *       404:
+ *         description: Workplace not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Document not found"
+ *       500:
  *         description: Server encountered an unexpected condition
  *         content:
  *           application/json:
@@ -208,23 +256,25 @@ workplaceRouter.post('/', async (req: Request, res: Response) => {
  *               properties:
  *                 message:
  *                   type: string
- *                   description: Error message describing the issue
  *                   example: "Internal Server Error"
  */
+
 workplaceRouter.patch('/:id', async (req: Request, res: Response) => {
     try {
         const workplace = await Workplace.findById(req.params.id);
         if (workplace) {
             let workingCopy = workplace.toObject();
             for (let key of Object.keys(workingCopy) as (keyof IWorkplace)[]) {
-                if(req.body[key]!= null){
+                if (req.body[key] != null) {
                     workplace[key] = req.body[key];
                 }
             }
 
             const patchedWorkplace = await workplace.save();
             res.json(patchedWorkplace);
-        }
+        } else { res.status(404).json({ message: "Document not found" }) }
+
+
     } catch (err: any) {
         if (err.name === 'ValidationError') {
             res.status(400).json({ message: err.message })
@@ -261,22 +311,36 @@ workplaceRouter.patch('/:id', async (req: Request, res: Response) => {
  *               properties:
  *                 message:
  *                   type: string
- *       InternalServerError:
+ *                   example: Deletion successful
+ *       404:
+ *         description: Workplace not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Document not found
+ *       500:
  *         description: Server encountered an unexpected condition
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                  message:
- *                      type: string
- *                      description: Error message describing the issue
- *                      example: Internal Server Error
+ *                 message:
+ *                   type: string
+ *                   example: Internal Server Error
  */
+
 workplaceRouter.delete('/:id', async (req: Request, res: Response) => {
     try {
-        await Workplace.findByIdAndDelete(req.params.id);
-        res.json({ message: "Deletion successful" });
+        let target = await Workplace.findByIdAndDelete(req.params.id);
+        if (!target) { res.status(404).json({ message: "Document not found" }) } else {
+            res.json({ message: "Deletion successful" });
+        }
+
     } catch (err: any) {
         res.status(500).json({ message: err.message })
     }

@@ -21,6 +21,7 @@ const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
  *       - name: id
  *         in: path
  *         required: true
+ *         description: The user ID to authenticate
  *         schema:
  *           type: string
  *     requestBody:
@@ -41,7 +42,7 @@ const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
  *           application/json:
  *             schema:
  *               type: string
- *               example: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
+ *               example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
  *       400:
  *         description: Invalid request format or validation error
  *         content:
@@ -52,8 +53,8 @@ const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
  *                 message:
  *                   type: string
  *                   example: "Validation failed: password is required"
- *       Unauthorized:
- *         description: Authentication failed due to invalid or missing credentials
+ *       401:
+ *         description: Authentication failed due to invalid credentials
  *         content:
  *           application/json:
  *             schema:
@@ -61,9 +62,18 @@ const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
  *               properties:
  *                 message:
  *                   type: string
- *                   description: Failed to find user or password mismatch
- *                   example: Invalid credentials
- *       InternalServerError:
+ *                   example: "Invalid credentials"
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Document not found"
+ *       500:
  *         description: Server encountered an unexpected condition
  *         content:
  *           application/json:
@@ -72,15 +82,15 @@ const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
  *               properties:
  *                 message:
  *                   type: string
- *                   description: Error message describing the issue
- *                   example: Internal Server Error
+ *                   example: "Internal Server Error"
  */
+
 loginRouter.post('/:id', async (req: Request, res: Response) => {
     try {
         //gets user from DB
         const user = await User.findById(req.params.id).populate('workplaceId');
         if (!user) {
-            res.json({ message: 'Failed to find user' , output:user})
+            res.status(404).json({ message: "Document not found" });
         } else {
             //compare with stored value
             const validated = await bcrypt.compare(req.body.password, user.password);
@@ -112,10 +122,83 @@ loginRouter.post('/:id', async (req: Request, res: Response) => {
 /**
  * Test route for authToken middleware
  */
+/**
+ * @openapi
+ * /login/{id}:
+ *   get:
+ *     summary: Retrieve a user by ID (protected)
+ *     tags:
+ *       - Login
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID to retrieve
+ *       - name: Authorization
+ *         in: header
+ *         required: true
+ *         description: JWT token for authentication
+ *         schema:
+ *           type: string
+ *           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *     responses:
+ *       200:
+ *         description: A user object without password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Unauthorized - missing token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized
+ *       403:
+ *         description: Forbidden - invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid token
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Document not found
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal Server Error
+ */
+
 loginRouter.get('/:id', authToken, async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.params.id).select('-password').populate('workplaceId');
-        res.json(user);
+        if (!user) { res.status(404).json({ message: "Document not found" }) } else {
+            res.json(user);
+        }
+
     } catch (err: any) {
         res.status(500).json({ message: err.message })
     }

@@ -22,22 +22,29 @@ import mongoose from 'mongoose';
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Incident'
- *       InternalServerError:
+ *       404:
+ *         description: No incidents found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
  *         description: Server encountered an unexpected condition
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                  message:
- *                      type: string
- *                      description: Error message describing the issue
- *                      example: Internal Server Error
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
+
 incidentRouter.get('/', async (req: Request, res: Response) => {
     try {
         const incidents: mongoose.Document[] = await Incident.find().populate(["reportedBy", "workplaceId"]);
-        res.json(incidents);
+        if (!incidents) {
+            res.status(404).json({ message: "Document not found" })
+        } else {
+            res.json(incidents);
+        }
+
     } catch (err: any) {
         res.status(500).json({ message: err.message })
     }
@@ -57,6 +64,7 @@ incidentRouter.get('/', async (req: Request, res: Response) => {
  *       - name: id
  *         in: path
  *         required: true
+ *         description: The ID of the incident to retrieve
  *         schema:
  *           type: string
  *     responses:
@@ -66,22 +74,37 @@ incidentRouter.get('/', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Incident'
- *       InternalServerError:
+ *       404:
+ *         description: Incident not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Document not found
+ *       500:
  *         description: Server encountered an unexpected condition
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                  message:
- *                      type: string
- *                      description: Error message describing the issue
- *                      example: Internal Server Error
+ *                 message:
+ *                   type: string
+ *                   example: Internal Server Error
  */
+
 incidentRouter.get('/:id', async (req: Request, res: Response) => {
     try {
         const incident = await Incident.findById(req.params.id).populate(["reportedBy", "workplaceId"]);
-        res.json(incident);
+        if (!incident) {
+            res.status(404).json({ message: "Document not found" })
+        } else {
+            res.json(incident);
+        }
+
     } catch (err: any) {
         res.status(500).json({ message: err.message })
     }
@@ -146,7 +169,7 @@ incidentRouter.get('/:id', async (req: Request, res: Response) => {
  *                 message:
  *                   type: string
  *                   example: "Validation failed: title is required"
- *       InternalServerError:
+ *       500:
  *         description: Server encountered an unexpected condition
  *         content:
  *           application/json:
@@ -163,14 +186,14 @@ incidentRouter.post('/', async (req: Request, res: Response) => {
 
     const incident: mongoose.Document = new Incident({
         title: req.body.title,
-            description: req.body.description,
-            photoPath: req.body.photoPath,
-            reportedBy: req.body.reportedBy,
-            workplaceId: req.body.workplaceId,
-            status: req.body.status,
-            //NOTE: THIS IS THE MONGOOSE DATE TYPE
-            createdAt: req.body.createdAt,
-            riskLevel: req.body.riskLevel
+        description: req.body.description,
+        photoPath: req.body.photoPath,
+        reportedBy: req.body.reportedBy,
+        workplaceId: req.body.workplaceId,
+        status: req.body.status,
+        //NOTE: THIS IS THE MONGOOSE DATE TYPE
+        createdAt: req.body.createdAt,
+        riskLevel: req.body.riskLevel
     })
 
     try {
@@ -205,6 +228,7 @@ incidentRouter.post('/', async (req: Request, res: Response) => {
  *       - name: id
  *         in: path
  *         required: true
+ *         description: The ID of the incident to update
  *         schema:
  *           type: string
  *     requestBody:
@@ -248,7 +272,17 @@ incidentRouter.post('/', async (req: Request, res: Response) => {
  *                 message:
  *                   type: string
  *                   example: "Validation failed: title is required"
- *       InternalServerError:
+ *       404:
+ *         description: Incident not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Document not found"
+ *       500:
  *         description: Server encountered an unexpected condition
  *         content:
  *           application/json:
@@ -257,22 +291,26 @@ incidentRouter.post('/', async (req: Request, res: Response) => {
  *               properties:
  *                 message:
  *                   type: string
- *                   description: Error message describing the issue
  *                   example: "Internal Server Error"
  */
+
+
+
 incidentRouter.patch('/:id', async (req: Request, res: Response) => {
     try {
         const incident = await Incident.findById(req.params.id);
         if (incident) {
             let workingCopy = incident.toObject();
             for (let key of Object.keys(workingCopy) as (keyof IIncident)[]) {
-                if(req.body[key]!= null){
+                if (req.body[key] != null) {
                     incident[key] = req.body[key];
                 }
             }
 
             const patchedIncident = await incident.save();
             res.json(patchedIncident);
+        } else {
+            res.status(404).json({ message: "Document not found" })
         }
     } catch (err: any) {
         if (err.name === 'ValidationError') {
@@ -296,6 +334,7 @@ incidentRouter.patch('/:id', async (req: Request, res: Response) => {
  *       - name: id
  *         in: path
  *         required: true
+ *         description: The ID of the incident to delete
  *         schema:
  *           type: string
  *     responses:
@@ -308,22 +347,38 @@ incidentRouter.patch('/:id', async (req: Request, res: Response) => {
  *               properties:
  *                 message:
  *                   type: string
- *       InternalServerError:
+ *                   example: Deletion successful
+ *       404:
+ *         description: Incident not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Document not found
+ *       500:
  *         description: Server encountered an unexpected condition
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                  message:
- *                      type: string
- *                      description: Error message describing the issue
- *                      example: Internal Server Error
+ *                 message:
+ *                   type: string
+ *                   example: Internal Server Error
  */
+
 incidentRouter.delete('/:id', async (req: Request, res: Response) => {
     try {
-        await Incident.findByIdAndDelete(req.params.id);
+        let target = await Incident.findByIdAndDelete(req.params.id);
+        if(!target){
+            res.status(404).json({ message: "Document not found" })
+        }else{
         res.json({ message: "Deletion successful" });
+        }
+
     } catch (err: any) {
         res.status(500).json({ message: err.message })
     }

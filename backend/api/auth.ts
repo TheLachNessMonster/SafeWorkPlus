@@ -33,8 +33,12 @@ export function authToken(req: Request, res: Response, next: NextFunction) {
         const authHeader = req.headers.authorization
         if (authHeader) {
             jwt.verify(authHeader, secretKey, (err, user) => {
-                if (err) return res.status(403).json({ message: 'Invalid token' })
-                next()
+                if (err) {
+                    return res.status(403).json({ message: 'Invalid token' })
+                } else {
+                    next()
+                }
+
             })
         }
     } catch (err: any) {
