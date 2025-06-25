@@ -13,4 +13,4 @@ const nuIncidentService = new GenericService<Incident>(nuClient, '/incidents');
 const nuWorkplaceService = new GenericService<Workplace>(nuClient, '/workplaces');
 const nuUserService= new GenericService<User>(nuClient, '/users');
 
-export {nuIncidentService, nuWorkplaceService, nuUserService};
+export {nuIncidentService, nuWorkplaceService, nuUserService, nuClient};
