@@ -129,6 +129,16 @@ userRouter.get('/:id', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Validation failed: email is required"
  *       InternalServerError:
  *         description: Server encountered an unexpected condition
  *         content:
@@ -136,10 +146,10 @@ userRouter.get('/:id', async (req: Request, res: Response) => {
  *             schema:
  *               type: object
  *               properties:
- *                  message:
- *                      type: string
- *                      description: Error message describing the issue
- *                      example: Internal Server Error
+ *                 message:
+ *                   type: string
+ *                   description: Error message describing the issue
+ *                   example: "Internal Server Error"
  */
 userRouter.post('/', async (req: Request, res: Response) => {
 
@@ -158,7 +168,11 @@ userRouter.post('/', async (req: Request, res: Response) => {
         const newUser: mongoose.Document = await user.save()
         res.status(201).json(newUser)
     } catch (err: any) {
-        res.status(500).json({ message: err.message })
+        if (err.name === 'ValidationError') {
+            res.status(400).json({ message: err.message })
+        } else {
+            res.status(500).json({ message: err.message })
+        }
     }
 })
 
@@ -170,7 +184,6 @@ userRouter.post('/', async (req: Request, res: Response) => {
  * Type assertion used allows looping instead of direct mapping as service layer ensures PATCH req body takes shape of router type
  * Future refactoring will make this algorithm generic and modular
  */
-
 /**
  * @openapi
  * /users/{id}:
@@ -206,6 +219,16 @@ userRouter.post('/', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Validation failed: email must be a valid email address"
  *       InternalServerError:
  *         description: Server encountered an unexpected condition
  *         content:
@@ -213,11 +236,12 @@ userRouter.post('/', async (req: Request, res: Response) => {
  *             schema:
  *               type: object
  *               properties:
- *                  message:
- *                      type: string
- *                      description: Error message describing the issue
- *                      example: Internal Server Error
+ *                 message:
+ *                   type: string
+ *                   description: Error message describing the issue
+ *                   example: "Internal Server Error"
  */
+
 userRouter.patch('/:id', async (req: Request, res: Response) => {
     try {
         //currently, password can't be reset if changed
@@ -237,7 +261,11 @@ userRouter.patch('/:id', async (req: Request, res: Response) => {
             res.json(patchedUser);
         }
     } catch (err: any) {
-        res.status(500).json({ message: err.message })
+        if (err.name === 'ValidationError') {
+            res.status(400).json({ message: err.message })
+        } else {
+            res.status(500).json({ message: err.message })
+        }
     }
 
 })

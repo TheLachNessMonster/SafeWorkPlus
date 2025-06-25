@@ -89,7 +89,6 @@ incidentRouter.get('/:id', async (req: Request, res: Response) => {
 
 
 
-
 /**
  * @openapi
  * /incidents:
@@ -137,18 +136,29 @@ incidentRouter.get('/:id', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Incident'
-  *       InternalServerError:
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Validation failed: title is required"
+ *       InternalServerError:
  *         description: Server encountered an unexpected condition
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                  message:
- *                      type: string
- *                      description: Error message describing the issue
- *                      example: Internal Server Error
+ *                 message:
+ *                   type: string
+ *                   description: Error message describing the issue
+ *                   example: "Internal Server Error"
  */
+
 incidentRouter.post('/', async (req: Request, res: Response) => {
 
     const incident: mongoose.Document = new Incident({
@@ -167,7 +177,11 @@ incidentRouter.post('/', async (req: Request, res: Response) => {
         const newIncident: mongoose.Document = await incident.save()
         res.status(201).json(newIncident)
     } catch (err: any) {
-        res.status(500).json({ message: err.message })
+        if (err.name === 'ValidationError') {
+            res.status(400).json({ message: err.message })
+        } else {
+            res.status(500).json({ message: err.message })
+        }
     }
 })
 
@@ -180,7 +194,6 @@ incidentRouter.post('/', async (req: Request, res: Response) => {
  * Type assertion used allows looping instead of direct mapping as service layer ensures PATCH req body takes shape of router type
  * Future refactoring will make this algorithm generic and modular
  */
-
 /**
  * @openapi
  * /incidents/{id}:
@@ -225,6 +238,16 @@ incidentRouter.post('/', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Incident'
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Validation failed: title is required"
  *       InternalServerError:
  *         description: Server encountered an unexpected condition
  *         content:
@@ -232,10 +255,10 @@ incidentRouter.post('/', async (req: Request, res: Response) => {
  *             schema:
  *               type: object
  *               properties:
- *                  message:
- *                      type: string
- *                      description: Error message describing the issue
- *                      example: Internal Server Error
+ *                 message:
+ *                   type: string
+ *                   description: Error message describing the issue
+ *                   example: "Internal Server Error"
  */
 incidentRouter.patch('/:id', async (req: Request, res: Response) => {
     try {
@@ -252,7 +275,11 @@ incidentRouter.patch('/:id', async (req: Request, res: Response) => {
             res.json(patchedIncident);
         }
     } catch (err: any) {
-        res.status(500).json({ message: err.message })
+        if (err.name === 'ValidationError') {
+            res.status(400).json({ message: err.message })
+        } else {
+            res.status(500).json({ message: err.message })
+        }
     }
 
 })

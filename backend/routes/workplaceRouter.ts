@@ -78,7 +78,6 @@ workplaceRouter.get('/:id', async (req: Request, res: Response) => {
 
 
 
-
 /**
  * @openapi
  * /workplaces:
@@ -107,6 +106,16 @@ workplaceRouter.get('/:id', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Workplace'
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Validation failed: name is required"
  *       InternalServerError:
  *         description: Server encountered an unexpected condition
  *         content:
@@ -114,15 +123,16 @@ workplaceRouter.get('/:id', async (req: Request, res: Response) => {
  *             schema:
  *               type: object
  *               properties:
- *                  message:
- *                      type: string
- *                      description: Error message describing the issue
- *                      example: Internal Server Error
+ *                 message:
+ *                   type: string
+ *                   description: Error message describing the issue
+ *                   example: "Internal Server Error"
  */
 
 workplaceRouter.post('/', async (req: Request, res: Response) => {
 
     //Instantiating a new person object to send to the database
+
     const workplace: mongoose.Document = new Workplace({
         name: req.body.name,
         location: req.body.location,
@@ -132,7 +142,11 @@ workplaceRouter.post('/', async (req: Request, res: Response) => {
         const newWorkplace: mongoose.Document = await workplace.save()
         res.status(201).json(newWorkplace)
     } catch (err: any) {
-        res.status(500).json({ message: err.message })
+        if (err.name === 'ValidationError') {
+            res.status(400).json({ message: err.message })
+        } else {
+            res.status(500).json({ message: err.message })
+        }
     }
 })
 
@@ -175,6 +189,16 @@ workplaceRouter.post('/', async (req: Request, res: Response) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Workplace'
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Validation failed: name is required"
  *       InternalServerError:
  *         description: Server encountered an unexpected condition
  *         content:
@@ -182,10 +206,10 @@ workplaceRouter.post('/', async (req: Request, res: Response) => {
  *             schema:
  *               type: object
  *               properties:
- *                  message:
- *                      type: string
- *                      description: Error message describing the issue
- *                      example: Internal Server Error
+ *                 message:
+ *                   type: string
+ *                   description: Error message describing the issue
+ *                   example: "Internal Server Error"
  */
 workplaceRouter.patch('/:id', async (req: Request, res: Response) => {
     try {
@@ -202,7 +226,11 @@ workplaceRouter.patch('/:id', async (req: Request, res: Response) => {
             res.json(patchedWorkplace);
         }
     } catch (err: any) {
-        res.status(500).json({ message: err.message })
+        if (err.name === 'ValidationError') {
+            res.status(400).json({ message: err.message })
+        } else {
+            res.status(500).json({ message: err.message })
+        }
     }
 
 })

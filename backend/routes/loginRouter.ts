@@ -10,7 +10,6 @@ const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
 
 
 
-
 /**
  * @openapi
  * /login/{id}:
@@ -43,17 +42,16 @@ const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
  *             schema:
  *               type: string
  *               example: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
- *       InternalServerError:
- *         description: Server encountered an unexpected condition
+ *       400:
+ *         description: Invalid request format or validation error
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                  message:
- *                      type: string
- *                      description: Error message describing the issue
- *                      example: Internal Server Error
+ *                 message:
+ *                   type: string
+ *                   example: "Validation failed: password is required"
  *       Unauthorized:
  *         description: Authentication failed due to invalid or missing credentials
  *         content:
@@ -61,11 +59,22 @@ const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
  *             schema:
  *               type: object
  *               properties:
- *                  message:
- *                      type: string
- *                      description: Failed to find user 
+ *                 message:
+ *                   type: string
+ *                   description: Failed to find user or password mismatch
+ *                   example: Invalid credentials
+ *       InternalServerError:
+ *         description: Server encountered an unexpected condition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message describing the issue
+ *                   example: Internal Server Error
  */
-
 loginRouter.post('/:id', async (req: Request, res: Response) => {
     try {
         //gets user from DB
@@ -88,7 +97,11 @@ loginRouter.post('/:id', async (req: Request, res: Response) => {
         }
 
     } catch (err: any) {
-        res.status(500).json({ message: err.message })
+        if (err.name === 'ValidationError') {
+            res.status(400).json({ message: err.message })
+        } else {
+            res.status(500).json({ message: err.message })
+        }
     }
 
 })
