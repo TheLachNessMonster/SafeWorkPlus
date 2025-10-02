@@ -63,15 +63,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setState(prev => ({ ...prev, isLoading: true }));
 
       // find user by email (still needed because BE expects user ID)
-      const users: User[] = await nuUserService.getAll();
-      const user = users.find(u => u.email === email);
+      // const users: User[] = await nuUserService.getAll();
+      // const user = users.find(u => u.email === email);
 
-      if (!user) {
-        throw new Error('User not found');
-      }
+      // if (!user) {
+      //   throw new Error('User not found');
+      // }
 
       // use login method
-      await nuClient.login(user._id, password);
+      await nuClient.login(email, password);
 
       // token is now automatically stored in nuClient.token
       const token = nuClient.token;

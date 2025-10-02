@@ -18,6 +18,8 @@ export async function hasher(input: string) {
 
 import { NextFunction, Request, Response, Router } from 'express';
 import * as jwt from 'jsonwebtoken';
+
+// TODO: crash server if key is undefined, otherwise a potential hardcoded key signature exists
 const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
 
 

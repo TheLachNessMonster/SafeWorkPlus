@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt'
 import * as jwt from 'jsonwebtoken'
 const loginRouter: Router = Router();
 import { User } from '../models/user';
+import {hasher} from '../api/auth'
 import dotenv from 'dotenv';
 dotenv.config();
 const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
@@ -85,10 +86,27 @@ const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
  *                   example: "Internal Server Error"
  */
 
-loginRouter.post('/:id', async (req: Request, res: Response) => {
+loginRouter.post('/', async (req: Request, res: Response) => {
     try {
         //gets user from DB
-        const user = await User.findById(req.params.id).populate('workplaceId');
+        //we want to do this by matching by email
+        //We should take the id out of the path and instead include email in the payload
+
+        //Login process:
+        /*
+        Send data (email and password)
+        Compare email
+        IF email match exists, hash password, check if password matches
+        IF password matches, return signed token and user data, log them in.
+
+        BREAK anywhere - "Invalid credentials
+        
+        REVISION! hash password first to reduce weakness to cache-timing attacks
+        */
+
+        //const tryPword = await hasher(req.body.password);
+        const user = await User.findOne({email:{$eq:req.body.email}}).populate('workplaceId')
+
         if (!user) {
             res.status(404).json({ message: "Document not found" });
         } else {
