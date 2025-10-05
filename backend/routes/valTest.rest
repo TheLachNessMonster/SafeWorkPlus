@@ -1,12 +1,12 @@
 ##The post for login will have the shape {"email":"xyz@email.com", "password":"abc123"}
 ##The password conversion should happen serverside, to obfusicate hashing process
-
+GET	http://localhost:3000/users/email/ashley@safework.com
 ###
-POST http://localhost:3000/users/
+POST http://localhost:3000/login/
 Content-Type: application/json
 
 {
-  "email": "ash@email.com", "rpassword": "abc123"
+  "email": "ashley@safework.com", "password": "abc123"
 }
 ###
 

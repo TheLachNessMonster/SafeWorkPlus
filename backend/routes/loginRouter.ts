@@ -106,6 +106,7 @@ loginRouter.post('/', async (req: Request, res: Response) => {
 
         //const tryPword = await hasher(req.body.password);
         const user = await User.findOne({email:{$eq:req.body.email}}).populate('workplaceId')
+        
 
         if (!user) {
             res.status(404).json({ message: "Document not found" });

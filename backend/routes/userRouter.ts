@@ -105,9 +105,25 @@ userRouter.get('/', async (req: Request, res: Response) => {
  *                   example: "Internal Server Error"
  */
 
-userRouter.get('/:id', async (req: Request, res: Response) => {
+userRouter.get('/id/:id', async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.params.id).select('-password').populate('workplaceId');
+        if(!user){
+            res.status(404).json({ message: "Document not found" }) 
+        }else{
+            res.json(user);
+        }
+    } catch (err: any) {
+        res.status(500).json({ message: err.message })
+    }
+});
+
+
+//gets a user by email - needs to be authorised, only accessible when logged in
+//should be usable by managers and staff (for looking up other staff in their address book)
+userRouter.get('/email/:email', async (req: Request, res: Response) => {
+    try {
+        const user = await User.findOne({email:{$eq:req.params.email}}).select('-password').populate('workplaceId');
         if(!user){
             res.status(404).json({ message: "Document not found" }) 
         }else{

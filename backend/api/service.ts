@@ -39,12 +39,13 @@ export class GenericService<T> {
 
 
     /**
-     * GETs target document
-     * @param {string} id - target doc id
+     * GETs target document based on route w/ params passed as argument to the function
+     * Route targets defined in the API
+     * @param {string} param - endpoint, may contain route parameters as needed e.g. id
      * @returns {Promise<T>} - instance of doc mapped to FE type
      */
-    async getById(id: string): Promise<T> {
-        let dto = await this.client.get<T>(this.endpoint + "/" + id)
+    async getByParam(param:string):Promise<T>{
+        let dto = await this.client.get<T>(this.endpoint +"/" + param)
         return dto;
     }
 

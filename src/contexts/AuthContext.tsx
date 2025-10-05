@@ -58,6 +58,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
+
+  //This is the REACT level login function - we could possibly
   const login = async (email: string, password: string): Promise<void> => {
     try {
       setState(prev => ({ ...prev, isLoading: true }));
@@ -70,11 +72,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       //   throw new Error('User not found');
       // }
 
-      // use login method
+      // use login method to get the token
       await nuClient.login(email, password);
-
       // token is now automatically stored in nuClient.token
       const token = nuClient.token;
+      
+      //now need to do a separate function call to get the user
+      const user = await nuUserService.getByParam("email/" + email);
 
       // store auth data in localStorage for persistence
       localStorage.setItem('auth_token', token);
@@ -114,7 +118,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       // use client for authenticated request
       // token is automatically included by client
-      const updatedUser = await nuUserService.getById(state.user._id);
+      const updatedUser = await nuUserService.getByParam(state.user._id);
       
       localStorage.setItem('user_data', JSON.stringify(updatedUser));
       setState(prev => ({ ...prev, user: updatedUser }));
