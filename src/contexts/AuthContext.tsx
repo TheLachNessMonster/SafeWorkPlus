@@ -73,15 +73,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // }
 
       // use login method to get the token
-      await nuClient.login(email, password);
-      // token is now automatically stored in nuClient.token
-      const token = nuClient.token;
+      const token = await nuClient.login(email, password);
+      localStorage.setItem('auth_token', token);
       
       //now need to do a separate function call to get the user
       const user = await nuUserService.getByParam("email/" + email);
 
       // store auth data in localStorage for persistence
-      localStorage.setItem('auth_token', token);
+
       localStorage.setItem('user_data', JSON.stringify(user));
 
       setState({

@@ -43,7 +43,7 @@ class NewApiClient {
             headers: {
                 'Content-Type': 'application/json',
                 //passes JWT
-                'Authorization': this.token,
+                'Authorization': await this.loadToken(),
                 ...options.headers,
             },
             ...options,
@@ -62,6 +62,18 @@ class NewApiClient {
             throw error;
         }
     }
+
+
+    async loadToken():Promise<string>{
+        const token = localStorage.getItem('auth_token');
+        if(!token){
+            return "";
+        }else{
+            return token;
+        }
+    }
+
+
     
 
 
@@ -73,17 +85,17 @@ class NewApiClient {
      * @param {string} email - email of user logging in
      * @param {string} password - password of user logging in
      */
-    async login(email:string, password:string) {
+    async login(email:string, password:string):Promise<string>{
         console.log("function hit, response output due")
 
 
-        var response :string = await this.post<string>(`/login/`, JSON.stringify({email:email,password:password}))
+        return this.post<string>(`/login/`, JSON.stringify({email:email,password:password}))
         
         //deeper client-side response handling can be captured here?  Passed to response context perhaps?  Should this be part of the front end?
         //could make this return a strongly typed response object? Since the method is called directly off the client, we could make the client define the data of a login response, being a token and a user object.  
         //How could we persist the user in document form? We can only return one value - return a list, containing the user, and the JWT?
         //Alternatively, if resulting in validation, perform an immediate user get call?  
-        this.token = response;
+
         
         //console.log(this.token);
     }

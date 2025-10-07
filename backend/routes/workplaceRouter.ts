@@ -2,6 +2,7 @@ import { Request, Response, Router } from 'express';
 const workplaceRouter: Router = Router();
 import { IWorkplace, Workplace } from '../models/workplace';
 import mongoose from 'mongoose';
+import { authToken } from '../api/auth';
 
 
 
@@ -44,7 +45,7 @@ import mongoose from 'mongoose';
  *                   example: "Internal Server Error"
  */
 
-workplaceRouter.get('/', async (req: Request, res: Response) => {
+workplaceRouter.get('/', authToken, async (req: Request, res: Response) => {
     try {
         const workplaces: mongoose.Document[] = await Workplace.find();
         if (!workplaces.length) { res.status(404).json({ message: "Document not found" }) } else {
@@ -102,7 +103,7 @@ workplaceRouter.get('/', async (req: Request, res: Response) => {
  *                   example: "Internal Server Error"
  */
 
-workplaceRouter.get('/:id', async (req: Request, res: Response) => {
+workplaceRouter.get('/:id', authToken, async (req: Request, res: Response) => {
     try {
         const workplace = await Workplace.findById(req.params.id)
         if (!workplace) { res.status(404).json({ message: "Document not found" }) } else {
@@ -166,7 +167,7 @@ workplaceRouter.get('/:id', async (req: Request, res: Response) => {
  *                   example: "Internal Server Error"
  */
 
-workplaceRouter.post('/', async (req: Request, res: Response) => {
+workplaceRouter.post('/', authToken, async (req: Request, res: Response) => {
 
     //Instantiating a new person object to send to the database
 
@@ -259,7 +260,7 @@ workplaceRouter.post('/', async (req: Request, res: Response) => {
  *                   example: "Internal Server Error"
  */
 
-workplaceRouter.patch('/:id', async (req: Request, res: Response) => {
+workplaceRouter.patch('/:id', authToken, async (req: Request, res: Response) => {
     try {
         const workplace = await Workplace.findById(req.params.id);
         if (workplace) {
@@ -334,7 +335,7 @@ workplaceRouter.patch('/:id', async (req: Request, res: Response) => {
  *                   example: Internal Server Error
  */
 
-workplaceRouter.delete('/:id', async (req: Request, res: Response) => {
+workplaceRouter.delete('/:id', authToken, async (req: Request, res: Response) => {
     try {
         let target = await Workplace.findByIdAndDelete(req.params.id);
         if (!target) { res.status(404).json({ message: "Document not found" }) } else {

@@ -2,6 +2,7 @@ import { Request, Response, Router } from 'express';
 const incidentRouter: Router = Router();
 import { IIncident, Incident } from '../models/incident';
 import mongoose from 'mongoose';
+import { authToken, hasher } from '../api/auth';
 
 
 
@@ -36,7 +37,7 @@ import mongoose from 'mongoose';
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 
-incidentRouter.get('/', async (req: Request, res: Response) => {
+incidentRouter.get('/', authToken, async (req: Request, res: Response) => {
     try {
         const incidents: mongoose.Document[] = await Incident.find().populate(["reportedBy", "workplaceId"]);
         if (!incidents) {
@@ -96,7 +97,7 @@ incidentRouter.get('/', async (req: Request, res: Response) => {
  *                   example: Internal Server Error
  */
 
-incidentRouter.get('/:id', async (req: Request, res: Response) => {
+incidentRouter.get('/:id', authToken, async (req: Request, res: Response) => {
     try {
         const incident = await Incident.findById(req.params.id).populate(["reportedBy", "workplaceId"]);
         if (!incident) {
@@ -182,7 +183,7 @@ incidentRouter.get('/:id', async (req: Request, res: Response) => {
  *                   example: "Internal Server Error"
  */
 
-incidentRouter.post('/', async (req: Request, res: Response) => {
+incidentRouter.post('/', authToken, async (req: Request, res: Response) => {
 
     const incident: mongoose.Document = new Incident({
         title: req.body.title,
@@ -296,7 +297,7 @@ incidentRouter.post('/', async (req: Request, res: Response) => {
 
 
 
-incidentRouter.patch('/:id', async (req: Request, res: Response) => {
+incidentRouter.patch('/:id', authToken, async (req: Request, res: Response) => {
     try {
         const incident = await Incident.findById(req.params.id);
         if (incident) {
@@ -370,7 +371,7 @@ incidentRouter.patch('/:id', async (req: Request, res: Response) => {
  *                   example: Internal Server Error
  */
 
-incidentRouter.delete('/:id', async (req: Request, res: Response) => {
+incidentRouter.delete('/:id', authToken, async (req: Request, res: Response) => {
     try {
         let target = await Incident.findByIdAndDelete(req.params.id);
         if(!target){

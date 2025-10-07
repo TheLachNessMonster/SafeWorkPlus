@@ -11,15 +11,20 @@ Content-Type: application/json
 ###
 
 GET http://localhost:3000/workplaces/
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXCJ9.eyJ1c2VySWQiOiI2OGE2YjliYmU4ZWYwMzBiZDBmZmIwZjEiLCJpYXQiOjE3NTk4MDkxMzAsImV4cCI6MTc1OTgxMjczMH0.n3bZpqoCfeQIa9o29cFpL1paVNvu5LwyJibcziIfUlw
 ###
 GET http://localhost:3000/incidents/
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGE2YjliYmU4ZWYwMzBiZDBmZmIwZjEiLCJpYXQiOjE3NTk4MDkxMzAsImV4cCI6MTc1OTgxMjczMH0.n3bZpqoCfeQIa9o29cFpL1paVNvu5LwyJibcziIfUlw
+###
 ###
 GET http://localhost:3000/users/
 ###
 GET http://localhost:3000/login/684e5ced8fe1c860d4b53d1a
 
 ###
-GET http://localhost:3000/login
+GET http://localhost:3000/login/
 
 ###
 POST http://localhost:3000/users/
@@ -30,14 +35,19 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:3000/login/685775bacf8354291d16704a
+GET http://localhost:3000/login/68a6b9bbe8ef030bd0ffb0f1
 Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGE2YjliYmU4ZWYwMzBiZDBmZmIwZjEiLCJpYXQiOjE3NTk4MDkxMzAsImV4cCI6MTc1OTgxMjczMH0.n3bZpqoCfeQIa9o29cFpL1paVNvu5LwyJibcziIfUlw
+###
+GET http://localhost:3000/login/68a6b9bbe8ef030bd0ffb0f1
 
-{
-  "password": "abc123"
-}
 ###
 
+
+GET http://localhost:3000/login/68a6b9bbe8ef030bd0ffb0f1
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1Ni4sInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGE2YjliYmU4ZWYwMzBiZDBmZmIwZjEiLCJpYXQiOjE3NTk2NTM1MDUsImV4cCI6MTc1OTY1NzEwNX0.W6GMzeU3JDH7IGLGH4vsq0GeaJC8sU1i4nydZyYwxRw
+###
 POST http://localhost:3000/users/
 Content-Type: application/json
 
