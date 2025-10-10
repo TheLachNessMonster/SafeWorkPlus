@@ -12,9 +12,9 @@ interface AuthState {
 }
 
 interface AuthContextType extends AuthState {
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  refreshUser: () => Promise<void>;
+  login: ((email: string, password: string) => Promise<void>)|null;
+  logout: (() => void)|null;
+  refreshUser: (() => Promise<void>)|null;
 }
 
 interface AuthProviderProps {
@@ -25,7 +25,18 @@ interface AuthProviderProps {
 
 //This is the Authorisation Context instance that will be propagated throughout the app
 // TODO: NEEDS AN EXPORT
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Default value here is undefined, and this includes the loading flag, so loading freeze can't help
+//Be strict and define the AuthContext defaults as null, null, true, false.
+const AuthContext = createContext<AuthContextType>({
+  user:null,
+  token:null,
+  isLoading:true,
+  isAuthenticated: true,
+  login:null,
+  logout:null,
+  refreshUser:null
+});
+//might be better to just have a seperate loading state
 
 
 //This is a React Component for handling authorisation
@@ -37,14 +48,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isAuthenticated: false,
   });
 
-
   // check for existing token on app load
   // This is firing every page change
   //but not on refreshes
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
     const userStr = localStorage.getItem('user_data');
-    
     if (token && userStr) {
       try {
 
@@ -154,7 +163,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     logout,
     refreshUser,
   };
-
+  //alert("This is the value that will be passed to the provider as props:" + JSON.stringify(value))
   return (
     //Here, .Provider is referencing a property of the React.Context<AuthProvider> type
     <AuthContext.Provider value={value}>
@@ -163,9 +172,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
   );
 }
 
+
+
+
 export function useAuth(): AuthContextType {
   //By default, the values received by a useContext call are the default context values
   const context = useContext(AuthContext);
+  //alert(JSON.stringify(context))
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }

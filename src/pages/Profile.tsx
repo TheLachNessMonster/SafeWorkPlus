@@ -7,7 +7,10 @@ export default function Profile() {
   const { user, logout } = useAuth();
 
   const handleLogout = () => {
-    logout();
+    // TODO: fix this jank
+    if(logout){
+      logout();
+    }
     navigate('/login');
   };
 

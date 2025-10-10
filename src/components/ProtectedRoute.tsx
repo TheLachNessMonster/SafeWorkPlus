@@ -11,8 +11,12 @@ export default function ProtectedRoute({
   children, 
   requiredRole 
 }: ProtectedRouteProps) {
-  const { isAuthenticated, user } = useAuth();
+  const { isLoading, isAuthenticated, user } = useAuth();
   const location = useLocation();
+
+  if(isLoading){
+    return <div>Loading...</div>; 
+  }
 
   // redir to login if not authenticated
   if (!isAuthenticated) {
