@@ -2,7 +2,8 @@ import { Request, Response, Router } from 'express';
 const incidentRouter: Router = Router();
 import { IIncident, Incident } from '../models/incident';
 import mongoose from 'mongoose';
-import { authToken, hasher } from '../api/auth';
+import { hasher } from '../api/auth';
+import { roleCheck } from '../middleware/roleCheck';
 
 
 
@@ -37,7 +38,7 @@ import { authToken, hasher } from '../api/auth';
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 
-incidentRouter.get('/', authToken, async (req: Request, res: Response) => {
+incidentRouter.get('/', roleCheck("user", "foreman"), async (req: Request, res: Response) => {
     try {
         const incidents: mongoose.Document[] = await Incident.find().populate(["reportedBy", "workplaceId"]);
         if (!incidents) {
@@ -97,7 +98,7 @@ incidentRouter.get('/', authToken, async (req: Request, res: Response) => {
  *                   example: Internal Server Error
  */
 
-incidentRouter.get('/:id', authToken, async (req: Request, res: Response) => {
+incidentRouter.get('/:id', roleCheck("user", "foreman"), async (req: Request, res: Response) => {
     try {
         const incident = await Incident.findById(req.params.id).populate(["reportedBy", "workplaceId"]);
         if (!incident) {
@@ -183,7 +184,7 @@ incidentRouter.get('/:id', authToken, async (req: Request, res: Response) => {
  *                   example: "Internal Server Error"
  */
 
-incidentRouter.post('/', authToken, async (req: Request, res: Response) => {
+incidentRouter.post('/', roleCheck("user", "foreman"), async (req: Request, res: Response) => {
 
     const incident: mongoose.Document = new Incident({
         title: req.body.title,
@@ -297,7 +298,7 @@ incidentRouter.post('/', authToken, async (req: Request, res: Response) => {
 
 
 
-incidentRouter.patch('/:id', authToken, async (req: Request, res: Response) => {
+incidentRouter.patch('/:id', roleCheck("foreman"), async (req: Request, res: Response) => {
     try {
         const incident = await Incident.findById(req.params.id);
         if (incident) {
@@ -371,7 +372,7 @@ incidentRouter.patch('/:id', authToken, async (req: Request, res: Response) => {
  *                   example: Internal Server Error
  */
 
-incidentRouter.delete('/:id', authToken, async (req: Request, res: Response) => {
+incidentRouter.delete('/:id', roleCheck("foreman"), async (req: Request, res: Response) => {
     try {
         let target = await Incident.findByIdAndDelete(req.params.id);
         if(!target){

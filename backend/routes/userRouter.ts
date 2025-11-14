@@ -3,7 +3,7 @@ const userRouter: Router = Router();
 import { IUser, User } from '../models/user';
 import mongoose from 'mongoose';
 import { authToken, hasher } from '../api/auth';
-
+import { roleCheck } from '../middleware/roleCheck';
 
 
 
@@ -46,7 +46,7 @@ import { authToken, hasher } from '../api/auth';
  */
 
 
-userRouter.get('/', authToken, async (req: Request, res: Response) => {
+userRouter.get('/', roleCheck("user", "foreman"), async (req: Request, res: Response) => {
     try {
         const users: mongoose.Document[] = await User.find().select('-password').populate('workplaceId');
         if(!users.length){
@@ -105,7 +105,7 @@ userRouter.get('/', authToken, async (req: Request, res: Response) => {
  *                   example: "Internal Server Error"
  */
 
-userRouter.get('/id/:id', authToken, async (req: Request, res: Response) => {
+userRouter.get('/id/:id', roleCheck("user", "foreman"), async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.params.id).select('-password').populate('workplaceId');
         if(!user){
@@ -121,7 +121,7 @@ userRouter.get('/id/:id', authToken, async (req: Request, res: Response) => {
 
 //gets a user by email - needs to be authorised, only accessible when logged in
 //should be usable by managers and staff (for looking up other staff in their address book)
-userRouter.get('/email/:email', authToken, async (req: Request, res: Response) => {
+userRouter.get('/email/:email', roleCheck("user", "foreman"), async (req: Request, res: Response) => {
     try {
         const user = await User.findOne({email:{$eq:req.params.email}}).select('-password').populate('workplaceId');
         if(!user){
@@ -196,7 +196,7 @@ userRouter.get('/email/:email', authToken, async (req: Request, res: Response) =
  *                   description: Error message describing the issue
  *                   example: "Internal Server Error"
  */
-userRouter.post('/', authToken, async (req: Request, res: Response) => {
+userRouter.post('/', roleCheck("foreman"), async (req: Request, res: Response) => {
 
     let hashedInput = await hasher(req.body.password).then(hash=>{return hash})
 
@@ -296,7 +296,7 @@ userRouter.post('/', authToken, async (req: Request, res: Response) => {
  *                   type: string
  *                   example: "Internal Server Error"
  */
-userRouter.patch('/:id',authToken, async (req: Request, res: Response) => {
+userRouter.patch('/:id',roleCheck("user", "foreman"), async (req: Request, res: Response) => {
     try {
         //currently, password can't be reset if changed
         const user = await User.findById(req.params.id).select('-password');
@@ -377,7 +377,7 @@ userRouter.patch('/:id',authToken, async (req: Request, res: Response) => {
  *                   example: "Internal Server Error"
  */
 
-userRouter.delete('/:id', authToken, async (req: Request, res: Response) => {
+userRouter.delete('/:id', roleCheck("foreman"), async (req: Request, res: Response) => {
     try {
         let target = await User.findByIdAndDelete(req.params.id);
         if(!target){

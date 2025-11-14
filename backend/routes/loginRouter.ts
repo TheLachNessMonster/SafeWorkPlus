@@ -142,7 +142,7 @@ loginRouter.post('/', async (req: Request, res: Response) => {
 
 
 /**
- * Test route for authToken middleware
+ * Test route for middleware
  */
 /**
  * @openapi
