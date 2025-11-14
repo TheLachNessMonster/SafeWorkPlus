@@ -18,8 +18,10 @@ export async function hasher(input: string) {
 
 import { NextFunction, Request, Response, Router } from 'express';
 import * as jwt from 'jsonwebtoken';
+import { REPLCommand } from 'repl';
 
 // TODO: crash server if key is undefined, otherwise a potential hardcoded key signature exists
+// TODO: remove duplicate mentions of secret key
 const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
 
 
@@ -34,11 +36,13 @@ export function authToken(req: Request, res: Response, next: NextFunction) {
     try {
         const authHeader = req.headers.authorization
         if (authHeader) {
-            jwt.verify(authHeader, secretKey, (err, user) => {
+            jwt.verify(authHeader, secretKey, (err, decoded) => {
                 if (err) {
                     return res.status(403).json({ message: 'Invalid token' })
                 } else {
-                    next()
+                    //TEMP
+                    console.log(decoded);
+                    next();
                 }
 
             })
@@ -47,3 +51,11 @@ export function authToken(req: Request, res: Response, next: NextFunction) {
         res.json({ message: err.message })
     }
 }
+
+
+// export function authUser(role:string):Function{
+//     return authUser[role] || (authUser[role]=function (req: Request, res:Response, next:NextFunction){
+
+//     })}
+
+// }

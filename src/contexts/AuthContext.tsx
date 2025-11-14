@@ -64,6 +64,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // TODO delete ts when uselessness verified
         nuClient.token = token;
         
+        //The setState here triggers a re-render
         setState({
           user:user,
           token:token,

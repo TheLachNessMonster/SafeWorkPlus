@@ -9,10 +9,25 @@ Content-Type: application/json
   "email": "ashley@safework.com", "password": "abc123"
 }
 ###
+POST http://localhost:3000/login/
+Content-Type: application/json
+
+{
+  "email": "test@email.com", "password": "abc123"
+}
+###
+GET http://localhost:3000/login/68a6b9bbe8ef030bd0ffb0f1
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiWWFiYmFEYWJiYURvbyIsImlhdCI6MTc2Mjc0Nzg0MiwiZXhwIjoxNzYyNzUxNDQyfQ.k2mpQziqpF9C-5tUNfDEBDd0AN3oVz3OOZUQ-F5K6HA
+
+###
+GET http://localhost:3000/login/684e5ced8fe1c860d4b53d1a
+
+###
 
 GET http://localhost:3000/workplaces/
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXCJ9.eyJ1c2VySWQiOiI2OGE2YjliYmU4ZWYwMzBiZDBmZmIwZjEiLCJpYXQiOjE3NTk4MDkxMzAsImV4cCI6MTc1OTgxMjczMH0.n3bZpqoCfeQIa9o29cFpL1paVNvu5LwyJibcziIfUlw
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoidXNlciIsImlhdCI6MTc2MTI4MDYwNSwiZXhwIjoxNzYxMjg0MjA1fQ.Gv7pK5RjNqRn4rL7qReFlv5KaJno8KC4CabE7I5rKhw
 ###
 GET http://localhost:3000/incidents/
 Content-Type: application/json

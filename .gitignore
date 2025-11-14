@@ -28,4 +28,6 @@ dist-ssr
 
 /backend/testApi.ts
 /backend/bcrypt.ts
+/backend/routes/valTest.rest
+/backend/models/interfaces.ts
 TODO.txt

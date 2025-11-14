@@ -6,8 +6,11 @@ const loginRouter: Router = Router();
 import { User } from '../models/user';
 import {hasher} from '../api/auth'
 import dotenv from 'dotenv';
+import { json } from 'stream/consumers';
 dotenv.config();
 const secretKey = process.env.JWT_SECRET_KEY || "OOPSY-DAISY";
+
+import { roleCheck } from '../middleware/roleCheck';
 
 
 
@@ -118,8 +121,8 @@ loginRouter.post('/', async (req: Request, res: Response) => {
                 res.status(401).json({ message: "Invalid credentials" })
             } else {
                 if (secretKey) {
-                    //if successful, issue token
-                    const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+                    //if successful, issue token, sign the user's privellege
+                    const token = jwt.sign({role : user.role }, secretKey, { expiresIn: '1h' });
                     res.json(token)
                 }
             }
@@ -211,7 +214,7 @@ loginRouter.post('/', async (req: Request, res: Response) => {
  *                   example: Internal Server Error
  */
 
-loginRouter.get('/:id', authToken, async (req: Request, res: Response) => {
+loginRouter.get('/:id', roleCheck("user"), async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.params.id).select('-password').populate('workplaceId');
         if (!user) { res.status(404).json({ message: "Document not found" }) } else {

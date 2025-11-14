@@ -11,6 +11,7 @@ export default function ProtectedRoute({
   children, 
   requiredRole 
 }: ProtectedRouteProps) {
+  //useAuth denotes ProtectedRoute as a consumer of AuthContext, and will :. re-render with any changes to authContext
   const { isLoading, isAuthenticated, user } = useAuth();
   const location = useLocation();
 
